@@ -3,14 +3,18 @@ import NextAuth , { NextAuthConfig } from "next-auth";
 
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import { User } from "./model/user";
+
 import bcrypt from "bcryptjs";
+import { User } from "./model/user";
+import authConfig from "./auth.config";
+
 
 interface Credentials {
   email?: string;
   password?: string;
 }
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [CredentialsProvider({
     async authorize(credentials){
       if (!credentials || typeof credentials.email !== 'string' || typeof credentials.password !== 'string') {
@@ -18,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       const{email,password}= credentials 
       
-      try {
+      
         const user = await User.findOne({email:email})
         if(user && typeof user.password === "string"){
           const isMatch = await bcrypt.compare(password,user.password)
@@ -26,18 +30,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return user;
         } else {
             console.error("Password Mismatch");
-            throw new Error("Check your password");
+            // throw new Error("Check your password");
+            return null
         }
+          //  Add this check for instructor verification
+          if (user.role === 'instructor' && user.isVerified === false) {
+            // throw new Error("Your instructor account is pending admin approval.");
+            console.log('Your instructor account is pending admin approval.')
+            return null
+          }
         }else{
           console.error("User not found");
-          throw new Error("User not found");
+          // throw new Error("User not found");
+          return null
         }
         
-      } catch (error:any) {
-        console.error(error);
-        throw new Error(error);
-        
-      }
+       
     }
   }),GoogleProvider({
     clientId: process.env.GOOGLE_CLIENT_ID,
@@ -51,16 +59,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }
   })],
   
-  session: {
-    strategy: "jwt",      
-    maxAge: 60 * 60 * 24,  // Session lifetime in seconds ( 1 day)
-  },
+ 
   jwt: {
     maxAge: 60 * 60 * 24, 
   },
+  
   callbacks: {
     // Called whenever a user signs in
     async signIn({ user, account, }) {
+      console.log('hello')
       console.log("🔁 signIn callback:", { user, account });
       if (account?.provider === "google") {
         try {

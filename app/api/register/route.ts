@@ -32,12 +32,15 @@ interface SignupRequestBody {
     }
     const hashedPassword = await bcrypt.hash(password, 5);
   
-    const newUser = {
+    const newUser:any = {
       name,
       email,
       password: hashedPassword,
       role: userRole,
     };
+    if (userRole === 'instructor') {
+      newUser.isVerified = false;
+    }
   
       const createdUser = await User.create(newUser);
   

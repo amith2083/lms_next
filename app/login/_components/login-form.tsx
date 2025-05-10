@@ -28,21 +28,31 @@ export function LoginForm() {
   const router = useRouter()
   const handleSubmit =async(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
-    try {
-      const formData = new FormData(e.currentTarget as HTMLFormElement);
-       const response = await CredentialLogin(formData) as LoginResponse
-       if(!!response.error){
-        console.log(response.error)
-        setError(response.error)
-       }else{
-        router.push('/')
-       }
-
-    } catch (error) {
-      console.log(error)
-    }
+    setError('')
     
-  }
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      //  const response = await CredentialLogin(formData) as LoginResponse
+       const { error, data } = await CredentialLogin(formData) as LoginResponse
+       console.log('front',error,data)
+      //  if(!!response.error){
+      //   console.log(response.error)
+      //   setError(response.error)
+      //  }else{
+      //   router.push('/')
+      //  }
+      if (error) {
+        setError(error);  // Set the error message to display
+      }
+  
+      // Handle successful login, like redirecting the user
+      if (data) {
+        // Redirect or do something with the successful data
+        router.push('/')
+      }
+
+    } 
+    
+  
   return (
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader>
@@ -84,6 +94,11 @@ export function LoginForm() {
           </Button>
         </div>
         </form>
+        {error && (
+        <p className="text-red-500 text-center">
+          {error}
+        </p>
+      )}
         <div className="text-center mt-2" > Or</div>
        
         <Button onClick={() => {console.log("Google Signin Clicked"); signIn('google', { callbackUrl: '/select-role' })}} className="w-full cursor-pointer">
