@@ -31,14 +31,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         } else {
             console.error("Password Mismatch");
             // throw new Error("Check your password");
+            
             return null
         }
           //  Add this check for instructor verification
-          if (user.role === 'instructor' && user.isVerified === false) {
-            // throw new Error("Your instructor account is pending admin approval.");
-            console.log('Your instructor account is pending admin approval.')
-            return null
-          }
+        //   if (user.role === 'instructor' && user.isVerified === false) {
+        //     // throw new Error("Your instructor account is pending admin approval.");
+        //     console.log('Your instructor account is pending admin approval.')
+        //     return null
+        //   }
         }else{
           console.error("User not found");
           // throw new Error("User not found");
@@ -67,8 +68,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     // Called whenever a user signs in
     async signIn({ user, account, }) {
-      console.log('hello')
+  
       console.log("🔁 signIn callback:", { user, account });
+      if (account?.provider === "credentials") {
+        if (!user?.isVerified) {
+          console.log(" Instructor pending approval");
+          return false; // Custom redirect
+        }
+      }
       if (account?.provider === "google") {
         try {
           const existingUser = await User.findOne({ email: user.email });
@@ -82,10 +89,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             isGoogleUser: true,
           });
           console.log("🆕 Google user created:", newUser.email);
+        }else{
+            console.log(" Existing user found with Google email:", existingUser.email);
+            user.id = existingUser._id.toString(); // Use existing user ID
+            user.role = existingUser.role;
+            user.isVerified = existingUser.isVerified;
+            // Optional: mark Google as auth method if not done before
+            if (!existingUser.isGoogleUser) {
+              existingUser.isGoogleUser = true;
+              await existingUser.save();
+            }
         }
           
         } catch (error) {
-          console.error("❌ Error in Google signIn:", error);
+          console.error(" Error in Google signIn:", error);
           return false;
         }
         
@@ -93,38 +110,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
+    async jwt({ token, user }) {
+        if (user) {
+          token.id = user.id;
+          token.role = user.role;
+          token.isVerified = user.isVerified;
+        }
+        return token;
+      },
+    
+      async session({ session, token }) {
+        if (token && session.user) {
+          session.user.id = token.id as string;
+          session.user.role = token.role as string;
+          session.user.isVerified = token.isVerified as boolean;
+        }
+        return session;
+      },
 
-    // Called when JWT token is created or updated
-    // async jwt({ token, user }) {
-    //   if (user) {
-    //     token.id =  user?.id; // Attach DB ID if available
-    //   }
-    //   return token;
-    // },
+   
 
-    // Controls what gets returned in `useSession`
-    // async session({ session, token }) {
-    //   if (token) {
-    //     session.user.id = token.id as string;
-    //   }
-    //   return session;
-    // },
-    // redirect: async ({ url, baseUrl }) => {
-    //   try {
-    //     const session = await auth(); // make sure you import and call it
-    
-    //     const user = await User.findOne({ email: session?.user?.email });
-    
-    //     if (user && !user.role) {
-    //       return `${baseUrl}/select-role`;
-    //     }
-    
-    //     return `${baseUrl}/login`;
-    //   } catch (error) {
-    //     console.error("❌ Error in redirect callback:", error);
-    //     return baseUrl;
-    //   }
-    // }
+   
     
   },
   debug: true,

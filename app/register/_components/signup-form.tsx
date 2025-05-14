@@ -23,9 +23,12 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
   const router = useRouter()
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log('e',e)
+    console.log(e.currentTarget)
     setErrorMessage(null); // clear any old errors
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
+      console.log('formdata',formData)
       const userData = {
         name: formData.get("name"),
         email: formData.get("email"),
@@ -51,21 +54,25 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
       });
       console.log('res',response)
       if (response.status === 409) {
-        setErrorMessage("This email is already registered. Please login or use a different email.");
+        const error = await response.json();
+        console.error(error.message);
+        setErrorMessage(error.message);
       }
       
       
     if (response.status === 201) {
       localStorage.setItem("otpEmail", userData.email as string);
       router.push("/otp");
-    } else {
-      // handle error, e.g. email already exists
-      const error = await response.json();
-      console.error(error.message);
-    }
+    } 
+    // else {
+    //   // handle error, e.g. email already exists
+    //   const error = await response.json();
+    //   console.error(error.message);
+    
+    // }
       // response.status===201 && router.push('/otp')
     } catch (error) {
-      console.log(error)
+      console.log('err',error)
     }
   };
   return (
@@ -124,7 +131,7 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
   </p>
 )}
 
-            <Button type="submit" className="w-full cursor-pointer">
+            <Button type="submit" className="w-full cursor-pointer" variant='black'>
               Create an account
             </Button>
           </div>

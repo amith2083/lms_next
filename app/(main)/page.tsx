@@ -1,4 +1,4 @@
- 
+ 'use client'
 import Element from "@/components/element";
 import {SectionTitle} from "@/components/section-title";
 import Support from "@/components/support";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { BookOpen } from "lucide-react";
 import { ArrowRightIcon } from "lucide-react";
 import { ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -99,6 +100,8 @@ const courses = [
   },
 ];
 const HomePage = () => {
+  
+
   return (
     <>
          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-12 mt-15">
@@ -121,6 +124,7 @@ const HomePage = () => {
           <h1 className="font-heading text-3xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
           Learn By Doing with <br/> Easy Learning
           </h1>
+          
           <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
             “You don’t understand anything until you learn it more than one
             way.”

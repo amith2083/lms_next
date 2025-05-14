@@ -13,6 +13,14 @@ const userSchema = new Schema({
   isGoogleUser: { type: Boolean, default: false },
   isBlocked: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: true },
+  resetOtp:{
+    type:Number,
+ 
+  },
+  resetOtpExpiry:{
+    type:Date,
+   
+  }
 }, { timestamps: true });
 
 export const User: any = models.User || model('User', userSchema);

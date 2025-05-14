@@ -66,7 +66,7 @@ export function LoginForm() {
           toast.error("Invalid email or password");
         }
       } else {
-        router.push("/"); // Redirect on success
+        router.push("/admin/admindashboard"); // Redirect on success
       }
 
     } 

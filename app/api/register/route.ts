@@ -28,7 +28,10 @@ interface SignupRequestBody {
     try {
         const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return new NextResponse("Email is already registered", { status: 409 });
+      return NextResponse.json(
+        { message: "This email is already registered. Please login or use a different email." },
+        { status: 409 }
+      );
     }
     const hashedPassword = await bcrypt.hash(password, 5);
   
@@ -47,7 +50,7 @@ interface SignupRequestBody {
       // Generate OTP
       const otp = generateOtp();
       console.log('otp',otp)
-      const otpExpiresAt = Date.now() + 1 * 60 * 1000;  // OTP expires in 10 minutes
+      const otpExpiresAt = Date.now() + 2 * 60 * 1000;  // OTP expires in 2 minutes
   
       // Save OTP in MongoDB
       await Otp.create({ email, otp, expiresAt: otpExpiresAt });
@@ -55,7 +58,7 @@ interface SignupRequestBody {
       // Send OTP email
       await sendOtpEmail(email, otp);
   
-      return new NextResponse("User has been created. OTP sent to email.", {
+      return  NextResponse.json({message:"User has been created. OTP sent to email."}, {
         status: 201,
       });
     } catch (error: any) {

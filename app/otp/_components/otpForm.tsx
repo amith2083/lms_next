@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import CredentialLogin from "@/app/actions";
+// import CredentialLogin from "@/app/actions";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -95,8 +95,8 @@ console.log('otpres',response)
           <div className="grid gap-2">
             
             <Input
-              id="email"
-              type="number"
+              id="otp"
+             
               name="otp"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
