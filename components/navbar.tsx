@@ -11,6 +11,8 @@ import { Avatar,AvatarFallback,AvatarImage } from "./ui/avatar";
 import blank from '@/public/assets/Blank-profile.png'
 import { signOut, useSession } from "next-auth/react";
 import { Session } from "next-auth";
+import { useRouter } from "next/navigation";
+
 const navLinks = [
   {
     title: "Features",
@@ -28,11 +30,21 @@ const navLinks = [
 
 const Navbar = () => {
   const{data:session}= useSession();
+  const router = useRouter();
   const[loginSession,setLoginSession]= useState<Session | null>(null);
   useEffect(()=>{
     setLoginSession(session)
   },[session])
   console.log('ses',session)
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      await signOut({ redirect: false }); // Prevent default redirect
+      router.push("/login"); // Manual redirect
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
   return (
     <>
       <div className="flex items-center gap-6">
@@ -96,7 +108,7 @@ const Navbar = () => {
             <Link href=''>Testimonials & Certificates</Link> 
         </DropdownMenuItem> 
         <DropdownMenuItem className="cursor-pointer" asChild>
- <Link href=''  onClick={(e)=>{e.preventDefault(); signOut()}}>Logout</Link> 
+ <Link href=''  onClick={handleLogout}>Logout</Link> 
         </DropdownMenuItem> 
     </DropdownMenuContent>   
 

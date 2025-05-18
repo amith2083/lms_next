@@ -2,7 +2,7 @@ import Footer from "@/components/footer";
 import { Navbar } from "./_components/navbar";
 import Sidebar from "./_components/sidebar";
 
-const DashboardLayout = ({ children }) => {
+const Dashboard = ({ children }) => {
   return (
     <div className="h-full">
       <div className="h-[80px] lg:pl-56 fixed inset-y-0 w-full z-50">
@@ -16,4 +16,4 @@ const DashboardLayout = ({ children }) => {
     </div>
   );
 };
-export default DashboardLayout;
+export default Dashboard;

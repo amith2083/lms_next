@@ -126,8 +126,12 @@ export function LoginForm() {
 </Button>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
+          <Link href="/register/instructor" className="underline">
+        Instructor
+          </Link>
+          <span> or </span>
           <Link href="/register/student" className="underline">
-            Register
+            Student
           </Link>
         </div>
       </CardContent>

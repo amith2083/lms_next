@@ -15,12 +15,12 @@ const routes = [
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/admindashboard",
+    href: "/admin/admindashboard",
   },
   {
     icon: PersonStanding,
     label: "Users",
-    href: "/admindashboard/users",
+    href: "/admin/users",
   },
   {
     icon: BookOpen,

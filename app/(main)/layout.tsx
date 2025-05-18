@@ -7,7 +7,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div >
       <Header/>
-      <SessionProvider> <main>{children}</main></SessionProvider>
+      <SessionProvider> <main className='flex-1 pt-20 flex flex-col border-b border-gray-600'>{children}</main></SessionProvider>
     
      <Footer/>
     </div>

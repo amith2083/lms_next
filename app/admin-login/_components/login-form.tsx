@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { FcGoogle } from "react-icons/fc";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 interface LoginResponse {
@@ -27,7 +27,9 @@ interface LoginResponse {
 
 export function LoginForm() {
   // const[error,setError] =useState('')
-  const router = useRouter()
+ 
+  const router= useRouter()
+
   const handleSubmit =async(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     // setError('')
@@ -60,13 +62,18 @@ export function LoginForm() {
       //   router.push('/')
       // }
       if (result?.error) {
-        if (result.error === "AccessDenied") {
-          toast.error("Your instructor account is pending admin approval"); // Show custom error
-        } else {
-          toast.error("Invalid email or password");
-        }
+        toast.error("Invalid email or password");
       } else {
-        router.push("/admin/admindashboard"); // Redirect on success
+        // fetch session after login
+        // const res = await fetch("/api/auth/session");
+        // const session = await res.json();
+    const res = await fetch("/api/auth/session");
+const updatedSession = await res.json();
+       if (updatedSession?.user?.role !== "admin") {
+  toast.error("Access denied. Admins only.");
+} else {
+  router.push("/admin/admindashboard");
+}
       }
 
     } 
@@ -124,12 +131,12 @@ export function LoginForm() {
         <FcGoogle className="h-5 w-5" />
   Continue with Google
 </Button>
-        <div className="mt-4 text-center text-sm">
+        {/* <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/register/student" className="underline">
             Register
           </Link>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );

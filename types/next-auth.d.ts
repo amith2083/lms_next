@@ -13,7 +13,7 @@ declare module "next-auth" {
   }
 
   interface User {
-    id: string;
+    _id: string;
     role?: string;
     isVerified?: boolean;
   }

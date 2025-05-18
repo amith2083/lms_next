@@ -112,7 +112,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user }) {
         if (user) {
-          token.id = user.id;
+          console.log('++userithe',user)
+          token.id = user._id.toString()
           token.role = user.role;
           token.isVerified = user.isVerified;
         }
@@ -120,6 +121,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     
       async session({ session, token }) {
+        console.log('token ithe',token)
         if (token && session.user) {
           session.user.id = token.id as string;
           session.user.role = token.role as string;
