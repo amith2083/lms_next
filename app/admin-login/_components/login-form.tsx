@@ -80,7 +80,7 @@ const updatedSession = await res.json();
     
   
   return (
-    <Card className="mx-auto max-w-sm w-full">
+    <Card className="mx-auto max-w-sm w-full ">
       <CardHeader>
         <CardTitle className="text-2xl">
         <p className="mt-5 text-3xl font-bold leading-tight text-gray-900 sm:leading-tight sm:text-5xl lg:text-3xl lg:leading-tight font-pj">
@@ -125,12 +125,12 @@ const updatedSession = await res.json();
           {error}
         </p>
       )} */}
-        <div className="text-center mt-2" > Or</div>
+        {/* <div className="text-center mt-2" > Or</div>
        
         <Button onClick={() => {console.log("Google Signin Clicked"); signIn('google', { callbackUrl: '/select-role' })}} className="w-full cursor-pointer">
         <FcGoogle className="h-5 w-5" />
   Continue with Google
-</Button>
+</Button> */}
         {/* <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/register/student" className="underline">

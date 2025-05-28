@@ -1,8 +1,12 @@
 import Footer from "@/components/footer";
 import { Navbar } from "./_components/navbar";
 import Sidebar from "./_components/sidebar";
+import { ReactNode } from "react";
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
 
-const Dashboard = ({ children }) => {
+const Dashboard = ({ children }:DashboardLayoutProps) => {
   return (
     <div className="h-full">
       <div className="h-[80px] lg:pl-56 fixed inset-y-0 w-full z-50">

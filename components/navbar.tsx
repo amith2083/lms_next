@@ -101,6 +101,11 @@ const Navbar = () => {
         <DropdownMenuItem className="cursor-pointer " asChild>
             <Link href='account'>Profile</Link> 
         </DropdownMenuItem>
+           {loginSession?.user?.role === "instructor" && (
+            <DropdownMenuItem className="cursor-pointer" asChild>
+            <Link href='instructor/dashboard'> <strong>Instructor Dashboard</strong> </Link> 
+        </DropdownMenuItem>
+        )}
         <DropdownMenuItem className="cursor-pointer" asChild>
             <Link href='account/enrolled-courses'>My Courses</Link> 
         </DropdownMenuItem> 

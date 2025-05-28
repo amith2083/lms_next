@@ -18,7 +18,11 @@ const courseSchema = new Schema({
         required: false,
         type: String
     },
-    modules:{  type: Schema.ObjectId, ref: "Module" },
+  modules: {
+  type: [Schema.Types.ObjectId],
+  ref: "Module",
+  default: [],
+},
 
     price:{
         required: false,
@@ -28,7 +32,10 @@ const courseSchema = new Schema({
         type: Boolean,
         default:false,
     },   
-    category:{  type: Schema.ObjectId, ref: "Category" },
+    category:{  type: Schema.ObjectId, ref: "Category" ,
+        default: null,
+  required: false,
+    },
 
     instructor:{  type: Schema.ObjectId, ref: "User" },
 
@@ -44,10 +51,12 @@ const courseSchema = new Schema({
     },  
     createdOn:{
         required: true,
+        default:Date.now(),
         type: Date
     },    
     modifiedOn:{
         required: true,
+          default:Date.now(),
         type: Date
     },
 });

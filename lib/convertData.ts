@@ -9,6 +9,7 @@ export interface DocumentWithId {
 }
 
 export const replaceMongoIdInArray = (array: MongoDocument[]): DocumentWithId[] => {
+    if (!Array.isArray(array)) return [];
   const mappedArray = array
     .map(item => ({
       id: item._id.toString(), // Convert ObjectId to string  and add into new field id
@@ -26,3 +27,11 @@ export const replaceMongoIdInObject = (obj: MongoDocument): DocumentWithId => {
 
 
 
+ export const getSlug = (title) => {
+    if (!title) return null;
+
+    const slug = title.toLowerCase().replace(/ /g, -'')
+    .replace(/[^\w-]+/g, '');
+
+    return slug;
+  }

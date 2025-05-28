@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 interface UserType {
   _id: string;
@@ -8,6 +10,7 @@ interface UserType {
   email: string;
   role: string;
   status: string;
+   isVerified: boolean;
 }
 
  const ListUsers=()=> {
@@ -29,6 +32,31 @@ interface UserType {
     });
     fetchUsers(); // Refresh the list
   };
+  const handleApprove = async (userId: string) => {
+     const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: "Do you want to approve this user?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, approve it!'
+  });
+    // await axios.put("/api/admin/users/approve", {
+    //   userId,
+    // });
+    // fetchUsers(); // Refresh the list
+     if (result.isConfirmed) {
+    try {
+      await axios.put("/api/admin/users/approve", { userId });
+      toast.success("User approved successfully");
+      fetchUsers();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Approval failed");
+    }
+  }
+  };
+
 
   return (
     <div className="p-6">
@@ -39,7 +67,8 @@ interface UserType {
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Email</th>
             <th className="p-2 border">Role</th>
-            <th className="p-2 border">Status</th>
+            {/* <th className="p-2 border">Status</th> */}
+            <th className="p-2 border">Verification</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -51,7 +80,21 @@ interface UserType {
                 <td className="p-2 border">{user?.name}</td>
                 <td className="p-2 border">{user?.email}</td>
                 <td className="p-2 border">{user?.role}</td>
-                <td className="p-2 border">{user?.status}</td>
+                {/* <td className="p-2 border">{user?.status}</td> */}
+                 <td className="p-2 border">
+                  {user.isVerified ? (
+                    <button className="px-3 py-1 rounded bg-green-600 text-white" disabled>
+                      Approved
+                    </button>
+                  ) : (
+                    <button
+                      className="px-3 py-1 rounded bg-blue-600 text-white"
+                      onClick={() => handleApprove(user._id)}
+                    >
+                      Approve
+                    </button>
+                  )}
+                </td>
                 <td className="p-2 border">
                   <button
                     className={`px-4 py-1 rounded text-white ${

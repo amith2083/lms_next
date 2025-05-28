@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+
 export const OtpForm=()=> {
   const[error,setError] =useState('')
   const [otp, setOtp] = useState("");

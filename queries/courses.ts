@@ -18,8 +18,17 @@ interface PopulatedTestimonial extends MongoDocument {
   users: MongoDocument;
 }
 
+interface CourseData {
+  title: string;
+  description: string;
+ 
+ 
+  // add any other fields as per your schema
+}
+
+
 export const getCourses = async (): Promise<DocumentWithId[]> => {
-  const courses: PopulatedCourse[] = await Course.find()
+  const courses: PopulatedCourse[] = await Course.find({active:true})
     .populate({
       path: "category",
       model: Category,
@@ -61,7 +70,27 @@ export const getCourseDetails = async (id: string): Promise<DocumentWithId | nul
     .populate({
       path: "modules",
       model: Module,
-    });
+    }).lean();
 
   return courseDetails ? replaceMongoIdInObject(courseDetails) : null;
 };
+
+export const getCourseDetailsByInstructor= async(instructorId)=>{
+ 
+    const publishCourses = await Course.find({instructor: instructorId, })
+    .populate({path: "category", model: Category })
+    .populate({path: "testimonials", model: Testimonial })
+    .populate({ path: "instructor", model: User})
+    .lean();
+   console.log('publiccourses',publishCourses)
+   return publishCourses
+}
+
+export const Create = async(courseData:CourseData)=> {
+    try {
+        const course = await Course.create(courseData);
+        return JSON.parse(JSON.stringify(course));
+    } catch (error:any) {
+        throw new Error(error);
+    }
+}
