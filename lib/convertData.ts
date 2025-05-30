@@ -20,7 +20,8 @@ export const replaceMongoIdInArray = (array: MongoDocument[]): DocumentWithId[] 
   return mappedArray;
 };
 
-export const replaceMongoIdInObject = (obj: MongoDocument): DocumentWithId => {
+export const replaceMongoIdInObject = (obj:MongoDocument): DocumentWithId|null => {
+  if (!obj) return null;
   const { _id, ...updatedObj } = { ...obj, id: obj._id.toString() }; 
   return updatedObj;
 };

@@ -1,9 +1,7 @@
 import mongoose, { Schema, Document, Types, Model } from "mongoose";
 
-
-// 1. Define the TypeScript interface for the document
 export interface IModule extends Document {
-    _id: Types.ObjectId;
+  _id: Types.ObjectId;
   title: string;
   description?: string;
   status: boolean;
@@ -13,21 +11,20 @@ export interface IModule extends Document {
   order: number;
 }
 
-// 2. Define the schema using Mongoose
 const moduleSchema = new Schema<IModule>({
   title: {
     required: true,
     type: String,
   },
-   description: {
+  description: {
     type: String,
-    required: false, 
-    default: "",     
+    required: false,
+    default: "",
   },
   status: {
     type: Boolean,
-    required: false, 
-    default: false,  
+    required: false,
+    default: false,
   },
   slug: {
     required: true,
@@ -49,6 +46,5 @@ const moduleSchema = new Schema<IModule>({
   },
 });
 
-// 3. Create and export the model with types
 export const Module: Model<IModule> =
   mongoose.models.Module || mongoose.model<IModule>("Module", moduleSchema);

@@ -18,52 +18,43 @@ import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ModuleList } from "./module-list-form";
-import { createModule, reOrderModules } from "@/app/actions/module";
+import { LessonList } from "./lesson-list";
+import { LessonModal } from "./lesson-modal";
 import { getSlug } from "@/lib/convertData";
+import { createLesson, reOrderLesson } from "@/app/actions/lesson";
 
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-});
 
-type FormValues = z.infer<typeof formSchema>;
-
-type Module = {
+interface Lesson {
   id: string;
   title: string;
-  isPublished?: boolean;
-  order:number
-};
+}
 
-type ModulesFormProps = {
-  initialData?: Module[];// Replace with a proper type if available
-  courseId: string;
-};
-
-
-
-export const ModulesForm: React.FC<ModulesFormProps> = ({
-  initialData = [],
-  courseId,
-}) => {
- const [modules, setModules] = useState<Module[]>(initialData ?? []);
- console.log('imnmitial', initialData)
- // Find highest existing order
-    const lastOrder = modules.length
-      ? Math.max(...modules.map((mod) => mod.order ?? 0))
-      : -1;
-
-    const nextOrder = lastOrder + 1;
-
-
+interface LessonFormProps {
+  initialData?: Lesson[];
+  moduleId: string;
+  courseId:string
+}
+ type FormValues = z.infer<typeof formSchema>;
+const formSchema = z.object({
+  title: z.string().min(1),
+});
+interface ReorderData {
+  id: string;
+  position: number;
+}
+ 
+export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId,courseId }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [lessons, setLessons] = useState<Lesson[]>(initialData);
   const router = useRouter();
-  const [isCreating, setIsCreating] = useState<boolean>(false);
-  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [lessonToEdit, setLessonToEdit] = useState<Lesson | null>(null);
 
-  const toggleCreating = (): void =>
-    setIsCreating((current) => !current);
+  const toggleCreating = () => setIsCreating((current) => !current);
+  const toggleEditing = () => setIsEditing((current) => !current);
 
-  const form = useForm<FormValues>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -72,41 +63,38 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
 
   const { isSubmitting, isValid } = form.formState;
 
+  const onSubmit = async (values:FormValues) => {
+      try {
+  
+        const formData = new FormData();
+        formData.append("title", values?.title);
+        formData.append("slug", getSlug(values?.title));
+        formData.append("moduleId",moduleId);
+        formData.append("order", lessons.length.toString())
+  
+        const lesson = await createLesson(formData); 
+  
+        setLessons((lessons) => [
+          ...lessons,
+          {
+            id: lesson?._id.toString(),
+            title: values.title,
+          },
+        ]);
+        toast.success("Lesson created");
+        toggleCreating();
+        router.refresh();
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
+    }; 
  
-   const onSubmit = async (values:FormValues):Promise<void> => {
-    try {
-
-      const formData = new FormData();
-      formData.append("title", values?.title);
-      formData.append("slug", getSlug(values?.title));
-      formData.append("courseId",courseId);
-      // formData.append("order", modules.length.toString())
-       formData.append("order", nextOrder.toString());
-
-      const moduleCreated = await createModule(formData); 
-
-      setModules((modules) => [
-        ...modules,
-        {
-         id: moduleCreated._id.toString(),
-          title: moduleCreated.title,
-            order: nextOrder,
-        },
-      ]);
-      toast.success("Module created");
-      toggleCreating();
-      router.refresh();
-    } catch (error:any) {
-      toast.error(error?.message);
-    }
-  };
-
-  const onReorder = async (updateData: any): Promise<void> => {
+  const onReorder = async (updateData:ReorderData[]) => {
     console.log({ updateData });
     try {
-      reOrderModules(updateData)
       setIsUpdating(true);
-      toast.success("Chapters reordered");
+      await reOrderLesson(updateData);
+      toast.success("Lesson reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -115,8 +103,10 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
     }
   };
 
-  const onEdit = (id: string): void => {
-    router.push(`/instructor/courses/${courseId}/modules/${id}`);
+  const onEdit = (id:string) => {
+        const foundLesson = lessons.find(lessons => lessons.id === id);
+    setLessonToEdit(foundLesson||null);
+    setIsEditing(true);
   };
 
   return (
@@ -127,14 +117,14 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Modules
+        Module Lessions
         <Button variant="ghost" onClick={toggleCreating}>
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a module
+              Add a chapter
             </>
           )}
         </Button>
@@ -168,19 +158,18 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
           </form>
         </Form>
       )}
-
       {!isCreating && (
         <div
           className={cn(
             "text-sm mt-2",
-            !modules?.length && "text-slate-500 italic"
+            !lessons?.length && "text-slate-500 italic"
           )}
         >
-          {!modules?.length && "No module"}
-          <ModuleList
+          {!lessons?.length && "No module"}
+          <LessonList
             onEdit={onEdit}
             onReorder={onReorder}
-            items={modules}
+            items={lessons || []}
           />
         </div>
       )}
@@ -189,6 +178,7 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
           Drag & Drop to reorder the modules
         </p>
       )}
+      <LessonModal open={isEditing} setOpen={setIsEditing} courseId={courseId} lesson={lessonToEdit} moduleId={moduleId}/>
     </div>
   );
 };

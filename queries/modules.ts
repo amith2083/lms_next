@@ -1,3 +1,5 @@
+import { replaceMongoIdInObject } from "@/lib/convertData"
+import { Lesson } from "@/model/lesson"
 import { IModule, Module } from "@/model/module"
 interface ModuleData{
     title:string,
@@ -21,4 +23,17 @@ export const create = async(moduleData:ModuleData): Promise<IModule>=>{
         
     }
    
+}
+
+export const getModule=async(moduleId:string):Promise<IModule>=>{
+    try {
+        const moduleWithLesson= await Module.findById(moduleId).
+        populate({
+            path: "lessonIds",
+            model: Lesson
+        }).lean();
+         return replaceMongoIdInObject(moduleWithLesson);
+    } catch (error:any) {
+        throw new Error(error.message);
+    }
 }
