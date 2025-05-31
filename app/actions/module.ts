@@ -74,3 +74,50 @@ export const updateModule = async (
     }
   }
 };
+
+export const changeModulePublishState = async (moduleId: string): Promise<boolean> => {
+  try {
+    const singleModule = await Module.findById(moduleId);
+    if (!singleModule) throw new Error("Module not found");
+
+    const updated = await Module.findByIdAndUpdate(
+      moduleId,
+      { status: !singleModule.status },
+      { new: true, lean: true }
+    );
+
+    if (!updated) throw new Error("Failed to update lesson");
+
+    return updated.status;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    } else {
+      throw new Error("Unknown error occurred during changing publish state");
+    }
+  }
+};
+
+
+export const deleteModule = async (
+  moduleId: string,
+  courseId: string
+): Promise<void> => {
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) throw new Error("course not found");
+
+    
+    course.modules = course.modules.filter(
+  (id) => id.toString() !== moduleId
+);
+    await Module.findByIdAndDelete(moduleId);
+    await course.save();
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    } else {
+      throw new Error("Unknown error occurred during lesson deletion");
+    }
+  }
+};

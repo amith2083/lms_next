@@ -31,7 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 type Module = {
   id: string;
   title: string;
-  isPublished?: boolean;
+  status?: boolean;
   order:number
 };
 

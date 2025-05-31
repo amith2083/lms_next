@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 interface Module {
   id: string;
   title: string;
-  isPublished?: boolean;
+  status?: boolean;
 }
 
 // Define the component props
@@ -77,7 +77,7 @@ export const ModuleList: React.FC<ModuleListProps> = ({
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      module.isPublished &&
+                      module.status&&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -86,7 +86,7 @@ export const ModuleList: React.FC<ModuleListProps> = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        module.isPublished && "border-r-sky-200 hover:bg-sky-200"
+                        module.status&& "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
@@ -97,10 +97,10 @@ export const ModuleList: React.FC<ModuleListProps> = ({
                       <Badge
                         className={cn(
                           "bg-gray-500",
-                          module.isPublished && "bg-emerald-600"
+                          module.status&& "bg-emerald-600"
                         )}
                       >
-                        {module.isPublished ? "Published" : "Draft"}
+                        {module.status? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={() => onEdit(module.id)}

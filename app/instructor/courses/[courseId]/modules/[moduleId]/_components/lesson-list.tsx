@@ -17,7 +17,7 @@ import { CirclePlay } from "lucide-react";
 interface LessonItem {
   id: string;
   title: string;
-  isPublished?: boolean;
+  active?: boolean;
 }
 
 interface LessonListProps {
@@ -74,7 +74,7 @@ export const LessonList: React.FC<LessonListProps> = ({ items, onReorder, onEdit
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      module.isPublished &&
+                      module.active &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -83,7 +83,7 @@ export const LessonList: React.FC<LessonListProps> = ({ items, onReorder, onEdit
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        module.isPublished &&
+                        module.active &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
@@ -98,10 +98,10 @@ export const LessonList: React.FC<LessonListProps> = ({ items, onReorder, onEdit
                       <Badge
                         className={cn(
                           "bg-gray-500",
-                          module.isPublished && "bg-emerald-600"
+                          module.active && "bg-emerald-600"
                         )}
                       >
-                        {module.isPublished ? "Published" : "Draft"}
+                        {module.active ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={() => onEdit(module.id)}

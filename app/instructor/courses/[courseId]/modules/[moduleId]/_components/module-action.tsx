@@ -5,35 +5,40 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
 import { toast } from "sonner";
+import { changeModulePublishState, deleteModule } from "@/app/actions/module";
+import { useRouter } from "next/navigation";
 
 
 
-interface Lesson {
+interface Module {
   id: string;
-  active: boolean;
+  status: boolean;
 }
 
-interface LessonActionsProps {
-  lesson: Lesson;
-  moduleId: string;
-  onDelete: () => void;
+interface ModuleActionsProps {
+  module: Module;
+  courseId: string;
+ 
 }
 
-export const LessonActions: React.FC<LessonActionsProps> = ({
-  lesson,
-  moduleId,
-  onDelete,
+export const ModuleActions: React.FC<ModuleActionsProps> = ({
+ module,
+  courseId,
+  
 }) => {
-  const [published, setPublished] = useState<boolean>(lesson?.active);
+    const router = useRouter()
+  const [published, setPublished] = useState<boolean>(module?.status);
   const [loading, setLoading] = useState<boolean>(false);
  
 
   const handleTogglePublish = async () => {
     setLoading(true);
     try {
-      const newState = await changeLessonPublishState(lesson.id);
+      const newState = await changeModulePublishState(module.id);
       setPublished(newState);
-      toast.success("The lesson has been updated");
+      toast.success("The Module has been updated");
+      router.refresh()
+
      
     } catch (e: any) {
       toast.error(e.message || "An error occurred");
@@ -45,16 +50,17 @@ export const LessonActions: React.FC<LessonActionsProps> = ({
   const handleDelete = async () => {
     if (published) {
       toast.error(
-        "A published lesson cannot be deleted. First unpublish it, then delete."
+        "A published Module cannot be deleted. First unpublish it, then delete."
       );
       return;
     }
 
     setLoading(true);
     try {
-      await deleteLesson(lesson.id, moduleId);
-      onDelete();
-         toast.success("The lesson has been deleted");
+      await deleteModule(module.id, courseId);
+     ;
+         toast.success("The Module has been deleted");
+         router.push(`/instructor/courses/${courseId}`)
     } catch (e: any) {
       toast.error(e.message || "An error occurred");
     } finally {

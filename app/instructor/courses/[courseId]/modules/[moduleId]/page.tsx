@@ -16,6 +16,7 @@ import { replaceMongoIdInArray } from "@/lib/convertData";
 
 import { sanitizeData } from "@/utils/sanitize";
 import { getModule } from "@/queries/modules";
+import { ModuleActions } from "./_components/module-action";
 
 interface LessonPageProps {
   params: {
@@ -26,7 +27,8 @@ interface LessonPageProps {
 const Module = async ({ params:{courseId, moduleId} }:LessonPageProps) => {
 
   const Singlemodule = await getModule(moduleId);
-  console.log('ithe',Singlemodule); 
+  const sanitizeModule = await sanitizeData(Singlemodule)
+
    
  
   
@@ -52,7 +54,7 @@ const Module = async ({ params:{courseId, moduleId} }:LessonPageProps) => {
               Back to course setup
             </Link>
             <div className="flex items-center justify-end">
-              <CourseActions />
+              <ModuleActions module ={sanitizeModule} courseId = {courseId}  />
             </div>
           </div>
         </div>
@@ -63,7 +65,7 @@ const Module = async ({ params:{courseId, moduleId} }:LessonPageProps) => {
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">Customize Your module</h2>
               </div>
-              <ModuleTitleForm initialData={{title: Singlemodule.title }} courseId={courseId} chapterId={moduleId} />
+              <ModuleTitleForm initialData={{title: Singlemodule?.title }} courseId={courseId} chapterId={moduleId} />
             </div>
             <div>
               <div className="flex items-center gap-x-2">
