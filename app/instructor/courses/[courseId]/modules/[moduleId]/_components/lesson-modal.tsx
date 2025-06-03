@@ -35,6 +35,7 @@ interface LessonModalProps {
   lesson: Lesson;
   moduleId: string;
   onClose?: () => void; // Optional callback on modal close
+  
 }
 export const LessonModal: FC<LessonModalProps> = ({
   open,

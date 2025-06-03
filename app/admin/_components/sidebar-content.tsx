@@ -25,23 +25,19 @@ const routes = [
   {
     icon: BookOpen,
     label: "Courses",
-    href: "/admindashboard/courses",
+    href: "/admin/courses",
   },
   {
     icon: Boxes,
     label: "Categories",
-    href: "/admindashboard/categories",
+    href: "/admin/categories",
   },
   {
     icon: CirclePlus,
     label: "Add Categories",
-    href: "/admindashboard/category/add",
+    href: "/admin/addcategory",
   },
-  {
-    icon: MessageCircleMore,
-    label: "chat",
-    href: "/dashboard/chat",
-  },
+
 //   {
 //     icon: BookA,
 //     label: "Quizes",

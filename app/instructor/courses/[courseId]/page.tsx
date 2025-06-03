@@ -11,13 +11,15 @@ import { TitleForm } from "./_components/title";
 import { SubTitleForm } from "./_components/sub-title-form";
 import { DescriptionForm } from "./_components/description";
 import { ImageForm } from "./_components/image-form";
-import { QuizSetForm } from "./_components/quiz-form";
+// import { QuizSetForm } from "./_components/quiz-form";
 import { ModulesForm } from "./_components/module-form";
 import { PriceForm } from "./_components/price-form";
 import AlertBanner from "@/components/alert-banner";
 import { IconBadge } from "@/components/icon-badge";
 import { sanitizeData } from "@/utils/sanitize";
 import { replaceMongoIdInArray } from "@/lib/convertData";
+import { CategoryForm } from "./_components/category-form";
+import { GetAllCategories } from "@/queries/categories";
 
 
 
@@ -32,6 +34,17 @@ const EditCourse = async ({ params }: CoursePageProps) => {
  
 
   const course = await getCourseDetails(courseId);
+
+    const categories = await GetAllCategories();
+  
+
+  const mappedCategories = categories.map(c => {
+    return {
+      value: c.title,
+      label: c.title,
+      id: c.id,
+    }
+  });
    // Sanitize fucntion for handle ObjectID and Buffer
 
 
@@ -42,13 +55,15 @@ const EditCourse = async ({ params }: CoursePageProps) => {
  const modules = sanitizeData(rawmodules);
   return (
     <>
-      <AlertBanner
-        label="This course is unpublished. It will not be visible in the course."
-        variant="warning"
-      />
+       {
+     !course?.status &&  <AlertBanner
+     label="This course is unpublished. It will not be visible in the course."
+     variant="warning"
+   />
+    }
       <div className="p-6">
         <div className="flex items-center justify-end">
-          <CourseActions />
+          <CourseActions courseId ={courseId} status ={course?.status} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           <div>
@@ -71,7 +86,9 @@ const EditCourse = async ({ params }: CoursePageProps) => {
               initialData={{ imageUrl: `/assets/images/courses/${course?.thumbnail}` }}
               courseId={courseId}
             />
-            <QuizSetForm initialData={{}} courseId={courseId} />
+             <CategoryForm initialData={{value: course?.category?.title }} courseId={courseId} options={mappedCategories} />
+
+            {/* <QuizSetForm initialData={{}} courseId={courseId} /> */}
           </div>
           <div className="space-y-6">
             <div>

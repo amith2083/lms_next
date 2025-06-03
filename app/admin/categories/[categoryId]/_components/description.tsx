@@ -3,9 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
 import {
   Form,
   FormControl,
@@ -13,22 +12,29 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
-import { updateCourse } from "@/app/actions/course";
 
+import { updateCategory } from "@/app/actions/category";
 
 const formSchema = z.object({
-  value: z.string().min(1),
+  description: z.string().min(1, {
+    message: "Description is required",
+  }),
 });
+
 type FormValues = z.infer<typeof formSchema>;
-export const CategoryForm = ({
-  initialData,
-  courseId,
-  options }) => {
+interface DescriptionFormProps {
+  initialData: {
+    description: string;
+  };
+  categoryId: string;
+}
+
+export const DescriptionForm:React.FC<DescriptionFormProps> = ({ initialData, categoryId }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -37,7 +43,7 @@ export const CategoryForm = ({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      value: initialData?.value || "",
+      description: initialData?.description || "",
     },
   });
 
@@ -45,9 +51,8 @@ export const CategoryForm = ({
 
   const onSubmit = async (values:FormValues) => {
     try {
-      const selectedCategory = options.find(option => option.value === values.value);
-      await updateCourse(courseId,{"category": selectedCategory.id})
-      toast.success("Course updated");
+      await updateCategory(categoryId,values)
+      toast.success("Category updated");
       toggleEdit();
       router.refresh();
     } catch (error) {
@@ -55,21 +60,17 @@ export const CategoryForm = ({
     }
   };
 
-  const selectedOptions = options.find(
-    (option) => option.value === initialData.value
-  );
-
   return (
     <div className="mt-6 border bg-gray-50 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course Category
+        Category Description
         <Button variant="ghost" onClick={toggleEdit}>
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Category
+              Edit Description
             </>
           )}
         </Button>
@@ -78,13 +79,12 @@ export const CategoryForm = ({
         <p
           className={cn(
             "text-sm mt-2",
-            !initialData.value && "text-slate-500 italic"
+            !initialData.description && "text-slate-500 italic"
           )}
         >
-          {selectedOptions?.label || "No category"}
+          {initialData.description || "No description"}
         </p>
       )}
-     
       {isEditing && (
         <Form {...form}>
           <form
@@ -93,11 +93,15 @@ export const CategoryForm = ({
           >
             <FormField
               control={form.control}
-              name="value"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Combobox options={options} {...field} />
+                    <Textarea
+                      disabled={isSubmitting}
+                      placeholder="e.g. 'This course is about...'"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

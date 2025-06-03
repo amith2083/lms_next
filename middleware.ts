@@ -15,16 +15,24 @@ export default auth(async(req) => {
     const isAuthenticated = !!req.auth;
     // Get JWT token to access custom fields
   const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  console.log('tokeeeeeeeeeeeeeeee',token)
   const userRole = token?.role 
+   const isBlocked = token?.isBlocked;
   console.log('role',userRole)
-    if(isAuthenticated){
-
-console
-      
-    }
-
+  
     const isPublicRoute = PUBLIC_ROUTES.some((route) => nextUrl.pathname.startsWith(route)) || nextUrl.pathname === ROOT;
     const isAdminRoute = nextUrl.pathname.startsWith("/admin");
+    if ( isAuthenticated && isBlocked  && nextUrl.pathname !== LOGIN) {
+    // Destroy the session cookie by clearing it
+    // const response = NextResponse.redirect(new URL(LOGIN, nextUrl));
+     const loginUrl = new URL(LOGIN, nextUrl);
+  loginUrl.searchParams.set('blocked', 'true'); // Add param to indicate block
+
+  const response = NextResponse.redirect(loginUrl);
+    response.cookies.set("next-auth.session-token", "", { maxAge: 0 });
+    response.cookies.set("next-auth.csrf-token", "", { maxAge: 0 });
+    return response;
+  }
 
 // Handle admin route access
 if (isAdminRoute) {

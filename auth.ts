@@ -12,7 +12,10 @@ import authConfig from "./auth.config";
 interface Credentials {
   email?: string;
   password?: string;
+
 }
+
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   providers: [CredentialsProvider({
@@ -88,7 +91,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role:null,
             isGoogleUser: true,
           });
-          console.log("🆕 Google user created:", newUser.email);
+          console.log(" Google user created:", newUser.email);
         }else{
             console.log(" Existing user found with Google email:", existingUser.email);
             user.id = existingUser._id.toString(); // Use existing user ID
@@ -111,21 +114,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async jwt({ token, user }) {
-        if (user) {
-          console.log('++userithe',user)
-          token.id = user._id.toString()
-          token.role = user.role;
-          token.isVerified = user.isVerified;
-        }
+     console.log('=================== JWT callback - BEFORE:', token);
+
+  // On initial sign in
+  if (user) {
+    token.id = user._id?.toString() ; // Depending on whether it's Mongoose user or Google profile
+  }
+
+  // Always fetch latest data
+  if (token.id) {
+    const userFromDb = await User.findById(token.id);
+    if (userFromDb) {
+      token.role = userFromDb.role;
+      token.isVerified = userFromDb.isVerified;
+      token.isBlocked = userFromDb.isBlocked;
+    }
+  }
+
+  console.log('=================== JWT callback - AFTER:', token);
+        // if (user) {
+       
+        //   token.id = user._id.toString()
+        //   token.role = user.role;
+        //   token.isVerified = user.isVerified;
+        //   token.isBlocked = user?.isBlocked
+        // }
         return token;
       },
     
       async session({ session, token }) {
-        console.log('token ithe',token)
+       
         if (token && session.user) {
           session.user.id = token.id as string;
           session.user.role = token.role as string;
           session.user.isVerified = token.isVerified as boolean;
+          session.user.isBlocked = token.isBlocked as boolean;
         }
         return session;
       },

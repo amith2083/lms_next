@@ -21,60 +21,97 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const router = useRouter()
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('e',e)
-    console.log(e.currentTarget)
-    setErrorMessage(null); // clear any old errors
-    try {
-      const formData = new FormData(e.currentTarget as HTMLFormElement);
-      console.log('formdata',formData)
-      const userData = {
-        name: formData.get("name"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-        confirmPassword: formData.get("confirmPassword"),
-        userRole: role === "student" || role === "instructor" ? role : "student",
-      };
-      if (userData.password !== userData.confirmPassword) {
-        setErrorMessage("Passwords do not match.");
-        return;
-      }
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   console.log('e',e)
+  //   console.log(e.currentTarget)
+  //   setErrorMessage(null); // clear any old errors
+  //   try {
+  //     const formData = new FormData(e.currentTarget as HTMLFormElement);
+  //     console.log('formdata',formData)
+  //     const userData = {
+  //       name: formData.get("name"),
+  //       email: formData.get("email"),
+  //       password: formData.get("password"),
+  //       confirmPassword: formData.get("confirmPassword"),
+  //       userRole: role === "student" || role === "instructor" ? role : "student",
+  //     };
+  //     if (userData.password !== userData.confirmPassword) {
+  //       setErrorMessage("Passwords do not match.");
+  //       return;
+  //     }
   
     
 
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-        userData
-        ),
-      });
-      console.log('res',response)
-      if (response.status === 409) {
-        const error = await response.json();
-        console.error(error.message);
-        setErrorMessage(error.message);
-      }
+  //     const response = await fetch("/api/register", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(
+  //       userData
+  //       ),
+  //     });
+  //     console.log('res',response)
+  //     if (response.status === 409) {
+  //       const error = await response.json();
+  //       console.error(error.message);
+  //       setErrorMessage(error.message);
+  //     }
       
       
-    if (response.status === 201) {
-      localStorage.setItem("otpEmail", userData.email as string);
-      router.push("/otp");
-    } 
-    // else {
-    //   // handle error, e.g. email already exists
-    //   const error = await response.json();
-    //   console.error(error.message);
+  //   if (response.status === 201) {
+  //     localStorage.setItem("otpEmail", userData.email as string);
+  //     router.push("/otp");
+  //   } 
+  //   // else {
+  //   //   // handle error, e.g. email already exists
+  //   //   const error = await response.json();
+  //   //   console.error(error.message);
     
-    // }
-      // response.status===201 && router.push('/otp')
-    } catch (error) {
-      console.log('err',error)
+  //   // }
+  //     // response.status===201 && router.push('/otp')
+  //   } catch (error) {
+  //     console.log('err',error)
+  //   }
+  // };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setErrorMessage(null);
+
+  const form = e.currentTarget;
+  const formData = new FormData(form);
+
+  const password = formData.get("password")?.toString();
+  const confirmPassword = formData.get("confirmPassword")?.toString();
+
+  if (password !== confirmPassword) {
+    setErrorMessage("Passwords do not match.");
+    return;
+  }
+
+  formData.set("userRole", role === "student" || role === "instructor" ? role : "student");
+
+  try {
+    const response = await fetch("/api/register", {
+      method: "POST",
+      body: formData, // use FormData, not JSON
+    });
+
+    if (response.status === 409) {
+      const error = await response.json();
+      setErrorMessage(error.message);
     }
-  };
+
+    if (response.status === 201) {
+      localStorage.setItem("otpEmail", formData.get("email") as string);
+      router.push("/otp");
+    }
+  } catch (error) {
+    console.log("err", error);
+  }
+};
+
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -91,7 +128,7 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="grid gap-4">
             <div className="grid ">
               <div className="grid gap-2">
@@ -125,6 +162,18 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
                 name="confirmPassword" required
               />
             </div>
+            {role === "instructor" && (
+  <div className="grid gap-2">
+    <Label htmlFor="verificationDocs">Verification Documents</Label>
+    <Input
+      id="verificationDocs"
+      name="verificationDocs"
+      type="file"
+      accept=".pdf,.jpg,.jpeg,.png"
+      required
+    />
+  </div>
+)}
             {errorMessage && (
   <p className="text-red-500 text-sm text-center mt-2">
     {errorMessage}

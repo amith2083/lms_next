@@ -5,6 +5,8 @@ import { User } from "@/model/user";
 import { generateOtp } from "@/utils/otp";
 import { Otp } from "@/model/otp";
 import { sendOtpEmail } from "@/utils/sendMail";
+import fs from "fs";
+import path from "path";
 
 
 interface SignupRequestBody {
@@ -17,10 +19,20 @@ interface SignupRequestBody {
 
 
   export const POST = async (request: NextRequest): Promise<NextResponse> => {
-    const body: SignupRequestBody = await request.json();
-    console.log(body)
-    const { name, email, password, userRole } = body;
-    console.log(name,email,password,userRole)
+    // const body: SignupRequestBody = await request.json();
+    // console.log(body)
+    // const { name, email, password, userRole } = body;
+    // console.log(name,email,password,userRole)
+      const formData = await request.formData();
+
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const userRole = formData.get("userRole") as string;
+
+  const verificationFile = formData.get("verificationDocs") as File | null;
+
+  
   
     await dbConnect();
   
@@ -43,6 +55,12 @@ interface SignupRequestBody {
     };
     if (userRole === 'instructor') {
       newUser.isVerified = false;
+       if (verificationFile) {
+        const buffer = Buffer.from(await verificationFile.arrayBuffer());
+        const filePath = `public/uploads/verifications/${verificationFile.name}`;
+        fs.writeFileSync(filePath, buffer); // simple storage for now
+        newUser.doc = verificationFile.name;
+      }
     }
   
       const createdUser = await User.create(newUser);

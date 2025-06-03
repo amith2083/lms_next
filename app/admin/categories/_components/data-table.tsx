@@ -69,10 +69,10 @@ export function DataTable<TData>({
           }
           className="max-w-sm"
         />
-        <Link href="/instructor/courses/add">
+        <Link href="/admin/addcategory">
           <Button>
             <PlusCircle className="h-4 w-4 mr-2" />
-             Add Course
+             Add Category 
           </Button>
         </Link>
       </div>

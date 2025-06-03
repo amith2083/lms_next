@@ -7,6 +7,7 @@ const userSchema = new Schema({
   role: { type: String,
      enum: ['admin', 'instructor', 'student'],
    },
+    doc: { type: String },
   bio: { type: String },
   phone: { type: Number },
   socialMedia: { type: Object },

@@ -28,7 +28,7 @@ interface CourseData {
 
 
 export const getCourses = async (): Promise<DocumentWithId[]> => {
-  const courses: PopulatedCourse[] = await Course.find({active:true})
+  const courses: PopulatedCourse[] = await Course.find({status:true})
     .populate({
       path: "category",
       model: Category,
@@ -44,7 +44,8 @@ export const getCourses = async (): Promise<DocumentWithId[]> => {
     .populate({
       path: "modules",
       model: Module,
-    });
+    }).lean();
+    
 
   return replaceMongoIdInArray(courses);
 };
@@ -82,7 +83,7 @@ export const getCourseDetailsByInstructor= async(instructorId)=>{
     .populate({path: "testimonials", model: Testimonial })
     .populate({ path: "instructor", model: User})
     .lean();
-   console.log('publiccourses',publishCourses)
+   
    return publishCourses
 }
 

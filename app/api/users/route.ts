@@ -17,7 +17,7 @@ import { getUsers } from "@/queries/users";
   
     try {
         const users = await getUsers()
-        console.log(users)
+        
         return NextResponse.json(users, { status: 200 });
     
      

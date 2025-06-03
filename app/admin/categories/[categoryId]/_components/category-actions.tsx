@@ -5,14 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { changeCoursePublishState, deleteCourse } from "@/app/actions/course";
+import { changeCategoryPublishState, deleteCategory } from "@/app/actions/category";
 
-interface CourseActionsProps {
-  courseId: string;
+
+interface CategoryActionsProps {
+  categoryId: string;
   status: boolean;
 }
 
-export const CourseActions: React.FC<CourseActionsProps> = ({ courseId, status = false }) => {
+export  const CategoryActions: React.FC<CategoryActionsProps> = ({ categoryId, status = false }) => {
   const [action, setAction] = useState<"change-active" | "delete" | null>(null);
   const [published, setPublished] = useState<boolean>(status);
   const router = useRouter();
@@ -23,20 +24,20 @@ export const CourseActions: React.FC<CourseActionsProps> = ({ courseId, status =
     try {
       switch (action) {
         case "change-active": {
-          const activeState = await changeCoursePublishState(courseId);
+          const activeState = await changeCategoryPublishState(categoryId);
           setPublished(activeState);
-          toast.success("The course has been updated");
+          toast.success("The category has been updated");
           router.refresh();
           break;
         }
 
         case "delete": {
           if (published) {
-            toast.error("A published course cannot be deleted. First unpublish it, then delete.");
+            toast.error("A published category cannot be deleted. First unpublish it, then delete.");
           } else {
-            await deleteCourse(courseId);
-            toast.success("The course has been deleted successfully");
-            router.push("/instructor/courses");
+            await deleteCategory(categoryId);
+            toast.success("The category has been deleted successfully");
+            router.push("/admin/categories");
           }
           break;
         }

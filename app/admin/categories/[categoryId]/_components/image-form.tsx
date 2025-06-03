@@ -18,8 +18,14 @@ const formSchema = z.object({
   }),
 });
 type FormValues = z.infer<typeof formSchema>;
+interface ImageFormProps {
+  initialData: {
+    imageUrl: string;
+  };
+  categoryId: string;
+}
 
-export const ImageForm = ({ initialData, courseId }) => {
+export const ImageForm: React.FC<ImageFormProps> = ({ initialData, categoryId }) => {
 
   const [file, setFile] = useState(null);
 
@@ -32,8 +38,8 @@ export const ImageForm = ({ initialData, courseId }) => {
         try {
           const formData = new FormData();
           formData.append("files", file[0]);
-          formData.append("destination", "./public/assets/images/courses");
-          formData.append("courseId",courseId);
+          formData.append("destination", "./public/assets/images/categories");
+          formData.append("categoryId",categoryId);
           const response = await fetch("/api/upload", {
             method: "POST",
             body: formData
@@ -41,7 +47,7 @@ export const ImageForm = ({ initialData, courseId }) => {
           const result = await response.text();
           console.log(result);
           if (response.status === 200) {
-            initialData.imageUrl = `/assets/images/courses/${file[0].path}`;
+            initialData.imageUrl = `/assets/images/categories/${file[0].path}`;
             toast.success(result);
             toggleEdit();
             router.refresh(); 
@@ -64,7 +70,7 @@ export const ImageForm = ({ initialData, courseId }) => {
 
   const onSubmit = async (values:FormValues) => {
     try {
-      toast.success("Course updated");
+      toast.success("Category updated");
       toggleEdit();
       router.refresh();
     } catch (error) {
@@ -75,7 +81,7 @@ export const ImageForm = ({ initialData, courseId }) => {
   return (
     <div className="mt-6 border bg-gray-50 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course Image
+        Category Image
         <Button variant="ghost" onClick={toggleEdit}>
           {isEditing && <>Cancel</>}
           {!isEditing && !initialData.imageUrl && (

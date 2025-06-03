@@ -12,8 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 // import CredentialLogin from "@/app/actions";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
@@ -28,6 +28,15 @@ interface LoginResponse {
 export function LoginForm() {
   // const[error,setError] =useState('')
   const router = useRouter()
+
+    const searchParams = useSearchParams();
+    console.log('////',searchParams)
+
+  useEffect(() => {
+    if (searchParams.get('blocked') === 'true') {
+      toast.error('Your account is blocked. Please contact admin.');
+    }
+  }, [searchParams]);
   const handleSubmit =async(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     // setError('')
@@ -66,6 +75,7 @@ export function LoginForm() {
           toast.error("Invalid email or password");
         }
       } else {
+        
         router.push("/"); // Redirect on success
       }
 

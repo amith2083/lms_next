@@ -178,7 +178,12 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
           Drag & Drop to reorder the modules
         </p>
       )}
-      <LessonModal open={isEditing} setOpen={setIsEditing} courseId={courseId} lesson={lessonToEdit} moduleId={moduleId}/>
+      <LessonModal open={isEditing} setOpen={setIsEditing} courseId={courseId} lesson={lessonToEdit} moduleId={moduleId}  onClose={() => {
+    if (lessonToEdit) {
+      setLessons(prev => prev.filter(lesson => lesson.id !== lessonToEdit.id));
+    
+    }
+  }}  />
     </div>
   );
 };
