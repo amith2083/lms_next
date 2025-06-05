@@ -106,7 +106,11 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
     if (response.status === 201) {
       localStorage.setItem("otpEmail", formData.get("email") as string);
       router.push("/otp");
-    }
+    }else {
+  const error = await response.json();
+  console.error("Unexpected response:", error);
+  setErrorMessage(error.message || "Registration failed");
+}
   } catch (error) {
     console.log("err", error);
   }

@@ -1,15 +1,16 @@
 // app/api/courses/route.ts
 import { NextResponse } from "next/server";
 
-import {  getCourses } from "@/queries/courses";
+// import {  getCourses } from "@/queries/courses";
 import { dbConnect } from "@/service/mongo";
 import { Course } from "@/model/course";
+import { getCoursesForAdmin } from "@/queries/courses";
 
 
 export const GET = async () => {
   try {
     await dbConnect();
-    const courses = await getCourses();
+    const courses = await getCoursesForAdmin();
 
     //  const coursesData = await getCourses(); // fetch courses
     // const courses = coursesData.sort((a, b) => {

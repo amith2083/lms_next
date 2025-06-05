@@ -24,8 +24,14 @@ const formSchema = z.object({
     message: "Description is required",
   }),
 });
-
-export const DescriptionForm = ({ initialData, courseId }) => {
+type FormValues = z.infer<typeof formSchema>;
+interface DescriptionFormProps {
+  initialData: {
+    description: string;
+  };
+  courseId: string;
+}
+export const DescriptionForm = ({ initialData, courseId }:DescriptionFormProps) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -40,7 +46,7 @@ export const DescriptionForm = ({ initialData, courseId }) => {
 
   const { isSubmitting, isValid } = form.formState;
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values:FormValues) => {
     try {
       await updateCourse(courseId,values)
       toast.success("Course updated");

@@ -22,6 +22,15 @@ export async function createCourse(data:CourseData){
     try {
         const loggedinUser = await getLoggedInUser();
         data["instructor"] = loggedinUser?.id
+        // Check for existing course with the same title and instructor
+    const existingCourse = await Course.findOne({
+     title: { $regex: `^${data.title}$`, $options: "i" },
+      // instructor: data.instructor,
+    });
+
+    if (existingCourse) {
+      throw new Error("A course with this title already exists for this instructor");
+    }
         const course = await Create(data);
        
         return course;

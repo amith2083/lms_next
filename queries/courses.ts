@@ -28,6 +28,28 @@ interface CourseData {
 
 
 export const getCourses = async (): Promise<DocumentWithId[]> => {
+  const courses: PopulatedCourse[] = await Course.find({status:true,isApproved:true})
+    .populate({
+      path: "category",
+      model: Category,
+    })
+    .populate({
+      path: "instructor",
+      model: User,
+    })
+    .populate({
+      path: "testimonials",
+      model: Testimonial,
+    })
+    .populate({
+      path: "modules",
+      model: Module,
+    }).lean();
+    
+
+  return replaceMongoIdInArray(courses);
+};
+export const getCoursesForAdmin = async (): Promise<DocumentWithId[]> => {
   const courses: PopulatedCourse[] = await Course.find({status:true})
     .populate({
       path: "category",
@@ -76,7 +98,7 @@ export const getCourseDetails = async (id: string): Promise<DocumentWithId | nul
   return courseDetails ? replaceMongoIdInObject(courseDetails) : null;
 };
 
-export const getCourseDetailsByInstructor= async(instructorId)=>{
+export const getCourseDetailsByInstructor= async(instructorId:string)=>{
  
     const publishCourses = await Course.find({instructor: instructorId, })
     .populate({path: "category", model: Category })

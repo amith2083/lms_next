@@ -12,7 +12,7 @@ interface UserType {
   status: string;
   isVerified: boolean;
   doc: string;
-  isBlocked:boolean;
+  isBlocked: boolean;
 }
 
 const ListUsers = () => {
@@ -25,7 +25,6 @@ const ListUsers = () => {
     const res = await axios.get<UserType[]>("/api/users");
     setUsers(res.data);
   };
-  console.log("users", users);
 
   // const toggleBlock = async (userId: string, isBlocked: boolean) => {
   //   await axios.put("/api/admin/users_block_unblock", {
@@ -34,19 +33,22 @@ const ListUsers = () => {
   //   });
   //   fetchUsers(); // Refresh the list
   // };
-const toggleBlock = async (userId: string, isBlocked: boolean) => {
-  console.log("+++",userId,isBlocked)
-  try {
-    await axios.put("/api/admin/users_block_unblock", {
-      userId,
-      block: !isBlocked,
-    });
-    toast.success(`User ${!isBlocked ? "blocked" : "unblocked"} successfully`);
-    fetchUsers(); // Refresh the list
-  } catch (err: any) {
-    toast.error(err?.response?.data?.message || "Failed to update user status");
-  }
-};
+  const toggleBlock = async (userId: string, isBlocked: boolean) => {
+    try {
+      await axios.put("/api/admin/users_block_unblock", {
+        userId,
+        block: !isBlocked,
+      });
+      toast.success(
+        `User ${!isBlocked ? "blocked" : "unblocked"} successfully`
+      );
+      fetchUsers(); // Refresh the list
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Failed to update user status"
+      );
+    }
+  };
 
   const handleApprove = async (userId: string) => {
     const result = await Swal.fire({
@@ -82,14 +84,14 @@ const toggleBlock = async (userId: string, isBlocked: boolean) => {
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Email</th>
             <th className="p-2 border">Role</th>
-            <th className="p-2 border">Document</th> {/* new */}
+            <th className="p-2 border">Document</th> 
             <th className="p-2 border">Verification</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
         <tbody>
           {users?.map((user) => {
-            const isBlocked = user?.isBlocked 
+            const isBlocked = user?.isBlocked;
             return (
               <tr key={user._id} className="text-center">
                 <td className="p-2 border">{user?.name}</td>
@@ -109,7 +111,6 @@ const toggleBlock = async (userId: string, isBlocked: boolean) => {
                     <span className="text-gray-400">N/A</span>
                   )}
                 </td>
-                {/* <td className="p-2 border">{user?.status}</td> */}
                 <td className="p-2 border">
                   {user.isVerified ? (
                     <button
