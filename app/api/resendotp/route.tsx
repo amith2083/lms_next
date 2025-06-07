@@ -14,12 +14,17 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
     await dbConnect();
 
     // Delete existing OTP (optional)
-    await Otp.deleteOne({ email });
+    // await Otp.deleteOne({ email });
 
     const newOtp = generateOtp();
-    const expiresAt = Date.now() + 1 * 60 * 1000; // 1 minute expiry
+    const newExpiresAt = Date.now() + 1 * 60 * 1000; // 1 minute expiry
 
-    await Otp.create({ email, otp: newOtp, expiresAt });
+    // await Otp.create({ email, otp: newOtp, expiresAt });
+    await Otp.findOneAndUpdate(
+      { email },
+      { newOtp, expiresAt: newExpiresAt },
+      { upsert: true, new: true }
+    );
 
     await sendOtpEmail(email, newOtp);
 

@@ -35,7 +35,7 @@ const Navbar = () => {
   useEffect(()=>{
     setLoginSession(session)
   },[session])
-  console.log('ses',session)
+ 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {

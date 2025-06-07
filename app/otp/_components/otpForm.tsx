@@ -15,33 +15,44 @@ import { Label } from "@/components/ui/label";
 // import CredentialLogin from "@/app/actions";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from '@/lib/store/authStore';
 
 
 export const OtpForm=()=> {
-  const[error,setError] =useState('')
+  const { otpEmail, setError, error, setLoading, isLoading,setOtpEmail } = useAuthStore();
+  // const[error,setError] =useState('')
+
   const [otp, setOtp] = useState("");
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
   const [isOtpExpired, setIsOtpExpired] = useState(false); // State to track OTP expiration
 
   const router = useRouter()
 
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("otpEmail");
+  // useEffect(() => {
+  //   const storedEmail = localStorage.getItem("otpEmail");
    
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
-  }, []);
+  //   if (storedEmail) {
+  //     setEmail(storedEmail);
+  //   }
+  // }, []);
+  // if (!otpEmail) {
+  //   router.push('/register/student'); // Adjust based on role if needed
+  //   return null;
+  // }
   const handleVerify = async () => {
     setError('')
-    setIsOtpExpired(false); // Reset expired state before new attempt
+    setIsOtpExpired(false);
+     // Reset expired state before new attempt
+setLoading(true);
+try {
 
-    const response = await fetch("/api/verifyotp", {
+  const response = await fetch("/api/verifyotp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
+      // body: JSON.stringify({ email, otp }),
+      body: JSON.stringify({ email: otpEmail, otp })
     });
-console.log('otpres',response)
+
     if (response.status === 200) {
       
       router.push("/login");
@@ -50,23 +61,29 @@ console.log('otpres',response)
       
       setError(error||'otp verfication failed')
       setIsOtpExpired(error.toLowerCase().includes('expired'));
+}
+} catch (error) {
+  console.error('Error:', error);
+      setError('An unexpected error occurred');
+}finally {
+      setLoading(false);
+    }
+    
   };
-  //  // Check if the error message contains 'OTP has expired'
-  //  if (error.toLowerCase().includes('expired')) {
-  //   setIsOtpExpired(true); // Set the flag if OTP has expired
-  // }
+ 
 
   
-}
+
   //Resend otp------------------------------------------------------------------------------------------------------------------------------------------
   const handleResendOtp = async () => {
     setError('');
     setIsOtpExpired(false);
-  
-    const response = await fetch("/api/resendotp", {
+    try {
+      
+       const response = await fetch("/api/resendotp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email:otpEmail }),
     });
   
     if (response.status === 200) {
@@ -75,6 +92,15 @@ console.log('otpres',response)
       const msg = await response.text();
       setError(msg || "Failed to resend OTP.");
     }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An unexpected error occurred');
+      
+    }finally {
+      setLoading(false);
+    }
+  
+   
   };
   return (
     <Card className="mx-auto max-w-sm w-full">
@@ -114,8 +140,8 @@ console.log('otpres',response)
               Resend OTP
             </Button>
           )}
-          <Button  onClick={handleVerify} type="submit" className="w-full " variant='black'>
-            submit
+          <Button  onClick={handleVerify} type="submit" className="w-full " variant='black' disabled={isLoading}>
+          {isLoading ? 'Verifying...' : 'Submit'}
           </Button>
         </div>
         

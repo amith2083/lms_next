@@ -47,7 +47,7 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
   courseId,
 }) => {
  const [modules, setModules] = useState<Module[]>(initialData ?? []);
- console.log('imnmitial', initialData)
+ 
  // Find highest existing order
     const lastOrder = modules.length
       ? Math.max(...modules.map((mod) => mod.order ?? 0))

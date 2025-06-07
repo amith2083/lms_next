@@ -1,4 +1,8 @@
-import { getInstructorDashboardData, COURSE_DATA } from "@/lib/dashboardHelper";
+// import { getInstructorDashboardData, COURSE_DATA } from "@/lib/dashboardHelper";
+"use client";
+
+
+import { useInstructorCourses } from "@/app/hooks/useInstructorCourses";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
 import { sanitizeData } from "@/utils/sanitize";
@@ -8,9 +12,14 @@ interface Course {
   [key: string]: any;
 }
 
-const CoursesPage = async (): Promise<JSX.Element> => {
-  const rawData = await getInstructorDashboardData(COURSE_DATA);
-  const courses: Course[] = sanitizeData(rawData || []);
+const CoursesPage =  (): JSX.Element => {
+  // const rawData = await getInstructorDashboardData(COURSE_DATA);
+  const { data, isLoading, error } = useInstructorCourses();
+
+  if (isLoading) return <p>Loading courses...</p>;
+  if (error) return <p>Failed to load courses</p>;
+
+  const courses = sanitizeData(data || []);
   console.log(courses);
 
   return (

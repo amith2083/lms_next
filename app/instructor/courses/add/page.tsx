@@ -62,7 +62,6 @@ const AddCourse = () => {
     } catch (error) {
       toast.error("Something went wrong");
     }
-    
     console.log(values);
   };
 

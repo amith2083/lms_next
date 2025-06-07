@@ -1,7 +1,7 @@
 'use server'
 import { getLoggedInUser } from "@/lib/loggedInUser";
 import { Course,ICourse } from "@/model/course";
-import { Create } from "@/queries/courses";
+
 
 interface CourseData {
   title: string;

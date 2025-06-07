@@ -109,7 +109,7 @@ export const getCourseDetailsByInstructor= async(instructorId:string)=>{
    return publishCourses
 }
 
-export const Create = async(courseData:CourseData)=> {
+export const CourseCreation = async(courseData:CourseData)=> {
     try {
         const course = await Course.create(courseData);
         return JSON.parse(JSON.stringify(course));

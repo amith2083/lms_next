@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
+import { useAuthStore } from '@/lib/store/authStore';
 
 interface LoginResponse {
   error?: string;
@@ -27,6 +28,7 @@ interface LoginResponse {
 
 export function LoginForm() {
   // const[error,setError] =useState('')
+  const { setError, error, setUser, setLoading, isLoading } = useAuthStore()
   const router = useRouter()
 
     const searchParams = useSearchParams();
@@ -39,8 +41,10 @@ export function LoginForm() {
   }, [searchParams]);
   const handleSubmit =async(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
+    setError('');
+    setLoading(true);
     // setError('')
-    
+    try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       //  const response = await CredentialLogin(formData) as LoginResponse
       //  const result = await CredentialLogin(formData) as LoginResponse
@@ -52,22 +56,7 @@ export function LoginForm() {
         password,
       });
       console.log('res',result)
-      //  console.log('front',error,data)
-      //  if(!!response.error){
-      //   console.log(response.error)
-      //   setError(response.error)
-      //  }else{
-      //   router.push('/')
-      //  }
-      // if (error) {
-      //   setError(error);  // Set the error message to display
-      // }
-  
-      // // Handle successful login, like redirecting the user
-      // if (data) {
-      //   // Redirect or do something with the successful data
-      //   router.push('/')
-      // }
+      
       if (result?.error) {
         if (result.error === "AccessDenied") {
           toast.error("Your instructor account is pending admin approval"); // Show custom error
@@ -79,6 +68,16 @@ export function LoginForm() {
         router.push("/"); // Redirect on success
       }
 
+      
+    } catch (error) {
+      
+    console.error('Error:', error);
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+    
+      
     } 
     
   
@@ -118,8 +117,8 @@ export function LoginForm() {
             </div>
             <Input id="password" type="password" name="password" required />
           </div>
-          <Button type="submit" className="w-1/2 mx-auto cursor-pointer" variant='black'>
-            Login
+          <Button type="submit" className="w-1/2 mx-auto cursor-pointer" variant='black' disabled={isLoading}>
+     {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </div>
         </form>

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
   const { email, otp } = await request.json();
-  console.log(email,otp)
+  console.log('verifyotp',email,otp)
 
   await dbConnect();
 

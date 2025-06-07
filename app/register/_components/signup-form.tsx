@@ -12,72 +12,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuthStore } from '@/lib/store/authStore';
 
 interface SignupFormProps {
   role: string;
 }
 export const SignupForm= ({ role }: SignupFormProps)=> {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { setError, setOtpEmail, error, isLoading, setLoading } = useAuthStore();
+useEffect(() => {
+  console.log("Error state:", error);
 
+  console.log("Loading state:", isLoading);
+}, [error, isLoading]);
   const router = useRouter()
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   console.log('e',e)
-  //   console.log(e.currentTarget)
-  //   setErrorMessage(null); // clear any old errors
-  //   try {
-  //     const formData = new FormData(e.currentTarget as HTMLFormElement);
-  //     console.log('formdata',formData)
-  //     const userData = {
-  //       name: formData.get("name"),
-  //       email: formData.get("email"),
-  //       password: formData.get("password"),
-  //       confirmPassword: formData.get("confirmPassword"),
-  //       userRole: role === "student" || role === "instructor" ? role : "student",
-  //     };
-  //     if (userData.password !== userData.confirmPassword) {
-  //       setErrorMessage("Passwords do not match.");
-  //       return;
-  //     }
-  
-    
 
-  //     const response = await fetch("/api/register", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(
-  //       userData
-  //       ),
-  //     });
-  //     console.log('res',response)
-  //     if (response.status === 409) {
-  //       const error = await response.json();
-  //       console.error(error.message);
-  //       setErrorMessage(error.message);
-  //     }
-      
-      
-  //   if (response.status === 201) {
-  //     localStorage.setItem("otpEmail", userData.email as string);
-  //     router.push("/otp");
-  //   } 
-  //   // else {
-  //   //   // handle error, e.g. email already exists
-  //   //   const error = await response.json();
-  //   //   console.error(error.message);
-    
-  //   // }
-  //     // response.status===201 && router.push('/otp')
-  //   } catch (error) {
-  //     console.log('err',error)
-  //   }
-  // };
+ 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  setErrorMessage(null);
+  setError(null);
+    setLoading(true);
+  // setErrorMessage(null);
 
   const form = e.currentTarget;
   const formData = new FormData(form);
@@ -86,7 +42,9 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
   const confirmPassword = formData.get("confirmPassword")?.toString();
 
   if (password !== confirmPassword) {
-    setErrorMessage("Passwords do not match.");
+    // setErrorMessage("Passwords do not match.");
+    setError('Passwords do not match.');
+      setLoading(false);
     return;
   }
 
@@ -100,20 +58,27 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
 
     if (response.status === 409) {
       const error = await response.json();
-      setErrorMessage(error.message);
+      // setErrorMessage(error.message);
+      setError(error.message)
     }
 
     if (response.status === 201) {
-      localStorage.setItem("otpEmail", formData.get("email") as string);
+      // localStorage.setItem("otpEmail", formData.get("email") as string);
+      const email = formData.get('email') as string;
+        setOtpEmail(email); // Set otpEmail in Zustand store
       router.push("/otp");
     }else {
   const error = await response.json();
   console.error("Unexpected response:", error);
-  setErrorMessage(error.message || "Registration failed");
+  // setErrorMessage(error.message || "Registration failed");
+  setError(error.message || 'Registration failed');
 }
   } catch (error) {
     console.log("err", error);
-  }
+    setError('An unexpected error occurred');
+  }finally {
+      setLoading(false);
+    }
 };
 
   return (
@@ -178,14 +143,14 @@ export const SignupForm= ({ role }: SignupFormProps)=> {
     />
   </div>
 )}
-            {errorMessage && (
+            {error && (
   <p className="text-red-500 text-sm text-center mt-2">
-    {errorMessage}
+    {error}
   </p>
 )}
 
-            <Button type="submit" className="w-full cursor-pointer" variant='black'>
-              Create an account
+            <Button type="submit" className="w-full cursor-pointer" variant='black'disabled ={isLoading} >
+             {isLoading ? 'Creating account...' : 'Create an account'}
             </Button>
           </div>
         </form>

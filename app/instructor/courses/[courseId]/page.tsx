@@ -1,10 +1,10 @@
-
+'use client'
 import {
   CircleDollarSign,
   ListChecks,
 } from "lucide-react";
 
-import { getCourseDetails } from "@/queries/courses";
+// import { getCourseDetails } from "@/queries/courses";
 
 import { CourseActions } from "./_components/course-action";
 import { TitleForm } from "./_components/title";
@@ -19,7 +19,9 @@ import { IconBadge } from "@/components/icon-badge";
 import { sanitizeData } from "@/utils/sanitize";
 import { replaceMongoIdInArray } from "@/lib/convertData";
 import { CategoryForm } from "./_components/category-form";
-import { GetAllCategories } from "@/queries/categories";
+// import { GetAllCategories } from "@/queries/categories";
+import { useCourseDetails } from "@/app/hooks/useCourseDetails";
+import { useCategories } from "@/app/hooks/useCategories";
 
 
 
@@ -29,15 +31,19 @@ interface CoursePageProps {
   };
 }
 
-const EditCourse = async ({ params }: CoursePageProps) => {
+const EditCourse =  ({ params }: CoursePageProps) => {
     const{courseId}= params
  
 
-  const course = await getCourseDetails(courseId);
+  // const course = await getCourseDetails(courseId);
+  const { data: course, isLoading: isLoadingCourse } = useCourseDetails(courseId);
+  const { data:categories = [], isLoading: isLoadingCategories } = useCategories();
 
-    const categories = await GetAllCategories();
-  
-
+    // const categories = await GetAllCategories();
+    console.log('cat',categories)
+    console.log('------------------',course)
+   if (isLoadingCourse ) return <p className="p-6">Loading...</p>;
+  if (!course) return <p className="p-6 text-red-500">Course not found.</p>;
   const mappedCategories = categories.map(c => {
     return {
       value: c.title,
@@ -50,7 +56,7 @@ const EditCourse = async ({ params }: CoursePageProps) => {
 
 
 
- const rawmodules = await replaceMongoIdInArray(course?.modules).sort((a,b) => a.order - b.order)||[];
+ const rawmodules =  replaceMongoIdInArray(course?.modules).sort((a,b) => a.order - b.order)||[];
 
  const modules = sanitizeData(rawmodules);
   return (

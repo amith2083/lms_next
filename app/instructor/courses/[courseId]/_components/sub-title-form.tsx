@@ -25,9 +25,17 @@ const formSchema = z.object({
     message: "Title is required",
   }),
 });
+type FormValues = z.infer<typeof formSchema>;
+interface TitleFormProps {
+  initialData: {
+    subtitle: string;
+  };
+  courseId: string;
+}
 
-export const SubTitleForm = ({ initialData = {}, courseId }) => {
+export const SubTitleForm: React.FC<TitleFormProps> = ({ initialData,  courseId }) => {
   const router = useRouter();
+  
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -39,7 +47,7 @@ export const SubTitleForm = ({ initialData = {}, courseId }) => {
 
   const { isSubmitting, isValid } = form.formState;
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values:FormValues) => {
     try { 
       await updateCourse(courseId,values)
       toggleEdit();
