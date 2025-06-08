@@ -26,7 +26,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-import { createCourse } from "@/app/actions/course";
+// import { createCourse } from "@/app/actions/course";
+import { useCreateCourse } from "@/app/hooks/useCreateCourse";
 
 
 const formSchema = z.object({
@@ -51,12 +52,14 @@ const AddCourse = () => {
 
 
   const { isSubmitting, isValid } = form.formState;
+   const { mutateAsync, isPending } = useCreateCourse();
 
   const onSubmit = async (values:FormValues) => {
     try {
-      const course = await createCourse(values);
-      console.log('course',course)
+      // const course = await createCourse(values);
+    
     //   router.push(`/instructor/courses/${course?._id}`);
+          await mutateAsync(values);
       router.push('/instructor/courses/');
       toast.success("Course created");
     } catch (error) {

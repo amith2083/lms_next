@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateCourse } from "@/app/actions/course";
+import { useUpdateCourse } from "@/app/hooks/useUpdateCourse";
 
 
 const formSchema = z.object({
@@ -42,14 +43,20 @@ export const CategoryForm = ({
   });
 
   const { isSubmitting, isValid } = form.formState;
+  const { mutateAsync } = useUpdateCourse(courseId);
 
   const onSubmit = async (values:FormValues) => {
     try {
       const selectedCategory = options.find(option => option.value === values.value);
-      await updateCourse(courseId,{"category": selectedCategory.id})
-      toast.success("Course updated");
+      console.log('selected',selectedCategory)
+      // await updateCourse(courseId,{"category": selectedCategory.id})
+      if (!selectedCategory) {
+      toast.error("Invalid category selected");
+      return;
+    }
+      await mutateAsync({ category: selectedCategory.id })
       toggleEdit();
-      router.refresh();
+      toast.success("Course title updated")
     } catch (error) {
       toast.error("Something went wrong");
     }

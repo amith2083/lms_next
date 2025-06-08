@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getCourseDetails } from "@/queries/courses";
-import { updateCourse } from "@/service/courseService";
+import { changeCoursePublishState, deleteCourse, updateCourse } from "@/service/courseService";
 
 export async function GET(
   req: NextRequest,
@@ -16,15 +16,35 @@ export async function GET(
   }
 }
 
+
 export async function PATCH(req: NextRequest, { params }: { params: { courseId: string } }) {
   try {
     const body = await req.json();
     console.log('body',body)
+   
 
+    if (body.action === "toggle-publish") {
+      const updatedStatus = await changeCoursePublishState(params.courseId);
+      return NextResponse.json({ status: updatedStatus });
+    }
     const updatedCourse = await updateCourse(params.courseId, body);
-    console.log('updated',updateCourse)
+   
 
     return NextResponse.json(updatedCourse);
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+
+
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { courseId: string } }
+) {
+  try {
+    await deleteCourse(params.courseId);
+    return NextResponse.json({ message: "Course deleted" });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }

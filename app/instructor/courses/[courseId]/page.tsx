@@ -38,10 +38,10 @@ const EditCourse =  ({ params }: CoursePageProps) => {
   // const course = await getCourseDetails(courseId);
   const { data: course, isLoading: isLoadingCourse } = useCourseDetails(courseId);
   const { data:categories = [], isLoading: isLoadingCategories } = useCategories();
+  console.log('cat',categories)
 
     // const categories = await GetAllCategories();
-    console.log('cat',categories)
-    console.log('------------------',course)
+  
    if (isLoadingCourse ) return <p className="p-6">Loading...</p>;
   if (!course) return <p className="p-6 text-red-500">Course not found.</p>;
   const mappedCategories = categories.map(c => {

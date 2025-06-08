@@ -1,12 +1,14 @@
 import { CategoryData } from "@/app/actions/category";
-import { replaceMongoIdInObject } from "@/lib/convertData";
+import { replaceMongoIdInArray, replaceMongoIdInObject } from "@/lib/convertData";
 import { Category } from "@/model/category";
 
 
 export const GetAllCategories = async () => {
   try {
-    const categories = await Category.find(); 
-    return categories;
+    // const categories = await Category.find(); 
+    // return categories;
+     const categories = await Category.find({}).lean();
+    return replaceMongoIdInArray(categories);
   } catch (error) {
     throw new Error("Failed to fetch categories");
   }

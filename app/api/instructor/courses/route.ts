@@ -1,7 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getUserByEmail } from "@/queries/users";
 import { getCourseDetailsByInstructor } from "@/queries/courses";
+import { createCourse } from "@/service/courseService";
+
+
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+     console.log("POST /instructor/courses received body:", body);
+    const course = await createCourse(body);
+    return NextResponse.json(course, { status: 201 });
+  } catch (error: any) {
+     console.error("Error in POST /instructor/courses:", error);
+    return NextResponse.json(
+      { message: error.message || "Failed to create course" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET() {
   try {

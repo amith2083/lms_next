@@ -1,49 +1,41 @@
+// app/hooks/useToggleCoursePublish.ts
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "@/lib/axios";
-type UpdateCourseData = Partial<{
-  title: string;
-  description: string;
-  price: number;
- 
-}>;
-export const useUpdateCourse = (courseId: string) => {
+
+export const useToggleCoursePublish = (courseId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data:UpdateCourseData) => {
-      console.log('dataaaaaaaaaaa',data)
-      const response = await axios.patch(`/instructor/courses/${courseId}`, data);
-      return response.data;
+    mutationFn: async () => {
+      const res = await axios.patch(`/instructor/courses/${courseId}`, {
+        action: "toggle-publish",
+      });
+      return res.data.status;
     },
 
-    onMutate: async (newData) => {
-      // Cancel ongoing queries
+    // Optimistic update
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["courseDetails", courseId] });
 
-      // Snapshot previous data
       const previous = queryClient.getQueryData(["courseDetails", courseId]);
 
-      // Optimistically update cache
       queryClient.setQueryData(["courseDetails", courseId], (old: any) => ({
         ...old,
-        ...newData,
+        status: !old.status,
       }));
 
       return { previous };
     },
 
-    onError: (_err, _newData, context) => {
-      // Rollback cache to previous state
+    onError: (_err, _data, context) => {
       if (context?.previous) {
         queryClient.setQueryData(["courseDetails", courseId], context.previous);
       }
     },
 
     onSettled: () => {
-      // Always refetch after mutation
       queryClient.invalidateQueries({ queryKey: ["courseDetails", courseId] });
     },
   });
 };
-

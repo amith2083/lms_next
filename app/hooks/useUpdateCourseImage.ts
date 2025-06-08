@@ -1,49 +1,39 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/axios";
-type UpdateCourseData = Partial<{
-  title: string;
-  description: string;
-  price: number;
- 
-}>;
-export const useUpdateCourse = (courseId: string) => {
+import axios from "@/lib/axios"; // or "axios" if using default
+
+export const useUpdateCourseImage = (courseId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data:UpdateCourseData) => {
-      console.log('dataaaaaaaaaaa',data)
-      const response = await axios.patch(`/instructor/courses/${courseId}`, data);
-      return response.data;
+    mutationFn: async (formData: FormData) => {
+      const response = await axios.post("/upload", formData);
+      return response.data; // e.g., { imageUrl: "/assets/images/courses/..." }
     },
 
-    onMutate: async (newData) => {
-      // Cancel ongoing queries
+    onMutate: async (formData) => {
       await queryClient.cancelQueries({ queryKey: ["courseDetails", courseId] });
 
-      // Snapshot previous data
       const previous = queryClient.getQueryData(["courseDetails", courseId]);
 
-      // Optimistically update cache
+      const file = formData.get("files") as File;
+      const fakeImageUrl = `/assets/images/courses/${file?.name || "temp.jpg"}`;
+
       queryClient.setQueryData(["courseDetails", courseId], (old: any) => ({
         ...old,
-        ...newData,
+        imageUrl: fakeImageUrl,
       }));
 
       return { previous };
     },
 
     onError: (_err, _newData, context) => {
-      // Rollback cache to previous state
       if (context?.previous) {
         queryClient.setQueryData(["courseDetails", courseId], context.previous);
       }
     },
 
     onSettled: () => {
-      // Always refetch after mutation
       queryClient.invalidateQueries({ queryKey: ["courseDetails", courseId] });
     },
   });
 };
-

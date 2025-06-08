@@ -11,6 +11,7 @@ import * as z from "zod";
 import { UploadDropzone } from "@/components/file-upload";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useUpdateCourseImage } from "@/app/hooks/useUpdateCourseImage";
 
 const formSchema = z.object({
   imageUrl: z.string().min(1, {
@@ -25,6 +26,7 @@ export const ImageForm = ({ initialData, courseId }) => {
 
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+    const updateCourseImage = useUpdateCourseImage(courseId);
 
   useEffect(() => {
     if (file) {
@@ -34,18 +36,10 @@ export const ImageForm = ({ initialData, courseId }) => {
           formData.append("files", file[0]);
           formData.append("destination", "./public/assets/images/courses");
           formData.append("courseId",courseId);
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            body: formData
-          });
-          const result = await response.text();
-          console.log(result);
-          if (response.status === 200) {
-            initialData.imageUrl = `/assets/images/courses/${file[0].path}`;
-            toast.success(result);
-            toggleEdit();
-            router.refresh(); 
-          }
+          await updateCourseImage.mutateAsync(formData);
+
+          toast.success("Image updated!");
+          toggleEdit()
 
         } catch (e) {
            toast.error(e.message);
@@ -66,7 +60,7 @@ export const ImageForm = ({ initialData, courseId }) => {
     try {
       toast.success("Course updated");
       toggleEdit();
-      router.refresh();
+      // router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
     }
