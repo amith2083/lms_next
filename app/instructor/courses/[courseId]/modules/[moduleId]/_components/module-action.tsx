@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
 import { toast } from "sonner";
-import { changeModulePublishState, deleteModule } from "@/app/actions/module";
+// import { changeModulePublishState, deleteModule } from "@/app/actions/module";
 import { useRouter } from "next/navigation";
+import { useToggleModulePublish } from "@/app/hooks/useToggleModulePublish";
+import { useDeleteModule } from "@/app/hooks/useDeleteModule";
 
 
 
@@ -29,15 +31,18 @@ export const ModuleActions: React.FC<ModuleActionsProps> = ({
     const router = useRouter()
   const [published, setPublished] = useState<boolean>(module?.status);
   const [loading, setLoading] = useState<boolean>(false);
- 
+  const toggleMutation = useToggleModulePublish(module.id);
+  const deleteMutation = useDeleteModule(module.id, courseId);
 
   const handleTogglePublish = async () => {
     setLoading(true);
     try {
-      const newState = await changeModulePublishState(module.id);
-      setPublished(newState);
+      // const newState = await changeModulePublishState(module.id);
+      // setPublished(newState);
+       const newStatus = await toggleMutation.mutateAsync();
+      setPublished(newStatus);
       toast.success("The Module has been updated");
-      router.refresh()
+     
 
      
     } catch (e: any) {
@@ -57,7 +62,8 @@ export const ModuleActions: React.FC<ModuleActionsProps> = ({
 
     setLoading(true);
     try {
-      await deleteModule(module.id, courseId);
+      // await deleteModule(module.id, courseId);
+      await deleteMutation.mutateAsync()
      ;
          toast.success("The Module has been deleted");
          router.push(`/instructor/courses/${courseId}`)

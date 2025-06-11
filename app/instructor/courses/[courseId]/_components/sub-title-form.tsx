@@ -17,8 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateCourse } from "@/app/actions/course";
+
 import { toast } from 'sonner';
+import { useUpdateCourse } from "@/app/hooks/useUpdateCourse";
 
 const formSchema = z.object({
     subtitle: z.string().min(1, {
@@ -46,12 +47,12 @@ export const SubTitleForm: React.FC<TitleFormProps> = ({ initialData,  courseId 
   });
 
   const { isSubmitting, isValid } = form.formState;
-
+ const { mutateAsync } = useUpdateCourse(courseId);
   const onSubmit = async (values:FormValues) => {
     try { 
-      await updateCourse(courseId,values)
+       await mutateAsync(values);
       toggleEdit();
-      router.refresh();
+      
       toast.success("Course SubTittle has been updated");
     } catch (error) {
       toast.error("Something went wrong");

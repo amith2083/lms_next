@@ -3,8 +3,10 @@
 import { Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
+// import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
 import { toast } from "sonner";
+import { useToggleLessonPublish } from "@/app/hooks/useToggleLessonPublish";
+import { useDeleteLesson } from "@/app/hooks/useDeleteLesson";
 
 
 
@@ -26,12 +28,16 @@ export const LessonActions: React.FC<LessonActionsProps> = ({
 }) => {
   const [published, setPublished] = useState<boolean>(lesson?.active);
   const [loading, setLoading] = useState<boolean>(false);
- 
+   const toggleMutation = useToggleLessonPublish(lesson.id);
+    const deleteMutation = useDeleteLesson(lesson.id, moduleId);
+
 
   const handleTogglePublish = async () => {
+   
     setLoading(true);
     try {
-      const newState = await changeLessonPublishState(lesson.id);
+      // const newState = await changeLessonPublishState(lesson.id);
+       const newState = await toggleMutation.mutateAsync();
       setPublished(newState);
       toast.success("The lesson has been updated");
      
@@ -52,7 +58,8 @@ export const LessonActions: React.FC<LessonActionsProps> = ({
 
     setLoading(true);
     try {
-      await deleteLesson(lesson.id, moduleId);
+      // await deleteLesson(lesson.id, moduleId);
+       await deleteMutation.mutateAsync()
       onDelete();
          toast.success("The lesson has been deleted");
     } catch (e: any) {

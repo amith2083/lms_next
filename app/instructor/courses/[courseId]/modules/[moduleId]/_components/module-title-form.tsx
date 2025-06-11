@@ -19,6 +19,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { getSlug } from "@/lib/convertData";
 import { updateModule } from "@/app/actions/module";
+import { useUpdateModule } from "@/app/hooks/useUpdateModule";
 type FormValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
   title: z.string().min(1),
@@ -43,16 +44,18 @@ export const ModuleTitleForm = ({ initialData, courseId, chapterId }:ModuleTitle
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
   });
-
+const { mutateAsync } = useUpdateModule(chapterId);
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values:FormValues) => {
     try {
       values["slug"] = getSlug(values.title)
-      await updateModule(chapterId,values);
+      // await updateModule(chapterId,values);
+      console.log('val',values)
+           await mutateAsync(values);
       toast.success("Module title updated");
       toggleEdit();
-      router.refresh();
+      // router.refresh();
     } catch {
       toast.error("Something went wrong");
     }

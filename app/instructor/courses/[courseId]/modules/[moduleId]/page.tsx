@@ -1,3 +1,4 @@
+'use client'
 import AlertBanner from "@/components/alert-banner";
 import { IconBadge } from "@/components/icon-badge";
 import {
@@ -17,6 +18,8 @@ import { replaceMongoIdInArray } from "@/lib/convertData";
 import { sanitizeData } from "@/utils/sanitize";
 import { getModule } from "@/queries/modules";
 import { ModuleActions } from "./_components/module-action";
+import { useModule } from "@/app/hooks/useModule";
+import { useMemo } from "react";
 
 interface LessonPageProps {
   params: {
@@ -24,24 +27,42 @@ interface LessonPageProps {
     moduleId:string;
   };
 }
-const Module = async ({ params:{courseId, moduleId} }:LessonPageProps) => {
+const Module =  ({ params:{courseId, moduleId} }:LessonPageProps) => {
+ 
 
-  const Singlemodule = await getModule(moduleId);
-  const sanitizeModule = await sanitizeData(Singlemodule)
+  // const Singlemodule = await getModule(moduleId);
+  // const sanitizeModule = await sanitizeData(Singlemodule)
+   const { data: moduleData, isLoading, error } = useModule(moduleId);
 
-   
+  //  const sanitizeModule =  sanitizeData(moduleData)
+
+    const sanitizeModule = useMemo(() => {
+    if (!moduleData) return null;
+    return sanitizeData(moduleData);
+  }, [moduleData]);
+
+  
+
+  const rawlessons = useMemo(() => {
+    if (!moduleData?.lessonIds) return [];
+    // const sorted = [...moduleData.lessonIds].sort((a, b) => a.order - b.order);
+    // return sanitizeData(sorted);
+    return replaceMongoIdInArray(moduleData?.lessonIds).sort((a,b) => a.order - b.order);
+  }, [moduleData]);
  
   
-   const rawlessons = await replaceMongoIdInArray(Singlemodule?.lessonIds).sort((a,b) => a.order - b.order);
+  //  const rawlessons =  replaceMongoIdInArray(moduleData?.lessonIds).sort((a,b) => a.order - b.order);
   
    const lessons = sanitizeData(rawlessons);
+    if (isLoading) return <p>Loading...</p>;
+  if (error || !moduleData) return <p>Error loading module</p>;
 
   return (
     <>
-      <AlertBanner
+     {!moduleData?.status &&<AlertBanner
         label="This module is unpublished. It will not be visible in the course."
         variant="warning"
-      />
+      /> } 
 
       <div className="p-6">
         <div className="flex items-center justify-between">
@@ -65,7 +86,7 @@ const Module = async ({ params:{courseId, moduleId} }:LessonPageProps) => {
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">Customize Your module</h2>
               </div>
-              <ModuleTitleForm initialData={{title: Singlemodule?.title }} courseId={courseId} chapterId={moduleId} />
+              <ModuleTitleForm initialData={{title: moduleData?.title }} courseId={courseId} chapterId={moduleId} />
             </div>
             <div>
               <div className="flex items-center gap-x-2">

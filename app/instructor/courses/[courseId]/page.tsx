@@ -38,7 +38,7 @@ const EditCourse =  ({ params }: CoursePageProps) => {
   // const course = await getCourseDetails(courseId);
   const { data: course, isLoading: isLoadingCourse } = useCourseDetails(courseId);
   const { data:categories = [], isLoading: isLoadingCategories } = useCategories();
-  console.log('cat',categories)
+  
 
     // const categories = await GetAllCategories();
   

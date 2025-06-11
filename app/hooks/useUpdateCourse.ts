@@ -12,7 +12,7 @@ export const useUpdateCourse = (courseId: string) => {
 
   return useMutation({
     mutationFn: async (data:UpdateCourseData) => {
-      console.log('dataaaaaaaaaaa',data)
+     
       const response = await axios.patch(`/instructor/courses/${courseId}`, data);
       return response.data;
     },

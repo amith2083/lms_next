@@ -18,7 +18,8 @@ import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { updateLesson } from "@/app/actions/lesson";
+import { useUpdateLesson } from "@/app/hooks/useUpdateLesson";
+// import { updateLesson } from "@/app/actions/lesson";
 
 const formSchema = z.object({
   isFree: z.boolean().default(false),
@@ -45,7 +46,7 @@ export const LessonAccessForm: React.FC<LessonAccessFormProps> = ({ initialData,
       isFree: !!initialData.isFree,
     },
   });
- 
+ const { mutateAsync } = useUpdateLesson(lessonId);
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values:FormValues) => {
@@ -53,11 +54,12 @@ export const LessonAccessForm: React.FC<LessonAccessFormProps> = ({ initialData,
       const payload = {
   access: values.isFree ? "public" : "private",
 };
-      await updateLesson(lessonId,payload);
+      // await updateLesson(lessonId,payload);
+      await mutateAsync(payload)
       setFree(!free); 
       toast.success("Lesson updated");
       toggleEdit();
-      router.refresh();
+      // router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
     }

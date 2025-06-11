@@ -19,8 +19,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ModuleList } from "./module-list-form";
-import { createModule, reOrderModules } from "@/app/actions/module";
+import {  reOrderModules } from "@/app/actions/module";
 import { getSlug } from "@/lib/convertData";
+import { useCreateMOdule } from "@/app/hooks/useCreateModule";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -72,18 +73,24 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
 
   const { isSubmitting, isValid } = form.formState;
 
- 
+ const createModule = useCreateMOdule();
    const onSubmit = async (values:FormValues):Promise<void> => {
     try {
 
-      const formData = new FormData();
-      formData.append("title", values?.title);
-      formData.append("slug", getSlug(values?.title));
-      formData.append("courseId",courseId);
-      // formData.append("order", modules.length.toString())
-       formData.append("order", nextOrder.toString());
+      const payload = {
+  title: values.title,
+  slug: getSlug(values.title),
+  courseId,
+  order: nextOrder.toString(),
+};
+      // const formData = new FormData();
+      // formData.append("title", values?.title);
+      // formData.append("slug", getSlug(values?.title));
+      // formData.append("courseId",courseId);
+      // // formData.append("order", modules.length.toString())
+      //  formData.append("order", nextOrder.toString());
 
-      const moduleCreated = await createModule(formData); 
+      const moduleCreated = await createModule.mutateAsync(payload); 
 
       setModules((modules) => [
         ...modules,
@@ -95,7 +102,7 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
       ]);
       toast.success("Module created");
       toggleCreating();
-      router.refresh();
+      
     } catch (error:any) {
       toast.error(error?.message);
     }

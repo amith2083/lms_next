@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSlug } from "@/lib/convertData";
-import { updateLesson } from "@/app/actions/lesson";
+import { useUpdateLesson } from "@/app/hooks/useUpdateLesson";
 
 type FormValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
@@ -45,17 +45,18 @@ export const LessonTitleForm: React.FC<LessonTitleFormProps> = ({ initialData, c
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
   });
-
+const { mutateAsync } = useUpdateLesson(lessonId);
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values:FormValues) => {
     try {
       values["slug"] = getSlug(values.title);
-      await updateLesson(lessonId,values);
+      // await updateLesson(lessonId,values);
+      await mutateAsync(values)
       setTitle(values.title);
       toast.success("Lesson updated");
       toggleEdit();
-      router.refresh();
+      // router.refresh();
     } catch {
       toast.error("Something went wrong");
     }

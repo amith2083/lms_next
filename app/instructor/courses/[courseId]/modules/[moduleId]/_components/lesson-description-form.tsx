@@ -19,7 +19,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { updateLesson } from "@/app/actions/lesson";
+import { useUpdateLesson } from "@/app/hooks/useUpdateLesson";
+// import { updateLesson } from "@/app/actions/lesson";
 
 const formSchema = z.object({
   description: z.string().min(1),
@@ -51,14 +52,15 @@ export const LessonDescriptionForm: React.FC<LessonDescriptionFormProps> = ({
   });
 
   const { isSubmitting, isValid } = form.formState;
-
+const { mutateAsync } = useUpdateLesson(lessonId);
   const onSubmit = async (values: FormValues) => {
     try {
-      await updateLesson(lessonId, values);
+      // await updateLesson(lessonId, values);
+      await mutateAsync(values)
       setDescription(values?.description);
       toast.success("Lesson updated");
       toggleEdit();
-      router.refresh();
+      // router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
     }

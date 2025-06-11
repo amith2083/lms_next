@@ -20,7 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { VideoPlayer } from "@/components/video-player";
 import { formatDuration } from "@/lib/duration";
-import { updateLesson } from "@/app/actions/lesson";
+import { useUpdateLesson } from "@/app/hooks/useUpdateLesson";
 
 type FormValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
@@ -56,7 +56,7 @@ export const VideoUrlForm: React.FC<VideoUrlFormProps>  = ({ initialData, course
   });
 
   const { isSubmitting, isValid } = form.formState;
-
+const { mutateAsync } = useUpdateLesson(lessonId);
   const onSubmit = async (values:FormValues) => {
   
     try {
@@ -69,15 +69,16 @@ export const VideoUrlForm: React.FC<VideoUrlFormProps>  = ({ initialData, course
           video_url: values.url,
           duration: totalDuration,
         };
-        await updateLesson(lessonId,payload)
+        // await updateLesson(lessonId,payload)
         // Update local state so UI reflects the change
+        await mutateAsync(payload)
       setState({
         url: values.url,
         duration: values.duration,
       });
         toast.success("Lesson updated");
         toggleEdit();
-      router.refresh()
+      // router.refresh()
     }
    } catch {
       toast.error("Something went wrong");

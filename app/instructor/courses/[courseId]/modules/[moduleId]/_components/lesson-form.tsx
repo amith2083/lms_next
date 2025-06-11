@@ -16,12 +16,14 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { LessonList } from "./lesson-list";
 import { LessonModal } from "./lesson-modal";
 import { getSlug } from "@/lib/convertData";
 import { createLesson, reOrderLesson } from "@/app/actions/lesson";
+import { useCreateLesson } from "@/app/hooks/useCreateLesson";
+import { useLesson } from "@/app/hooks/useLesson";
 
 
 interface Lesson {
@@ -50,6 +52,8 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [lessonToEdit, setLessonToEdit] = useState<Lesson | null>(null);
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const { data: foundLesson, isLoading: loadingLesson } = useLesson(selectedLessonId || "");
 
   const toggleCreating = () => setIsCreating((current) => !current);
   const toggleEditing = () => setIsEditing((current) => !current);
@@ -60,19 +64,30 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
       title: "",
     },
   });
-
+  useEffect(() => {
+  if (foundLesson) {
+    setLessonToEdit(foundLesson);
+    setIsEditing(true);
+  }
+}, [foundLesson]);
+ const createLesson = useCreateLesson();
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values:FormValues) => {
       try {
+      const payload = {
+  title: values.title,
+  slug: getSlug(values.title),
+  moduleId,
+  order: lessons.length.toString(),
+};
+        // const formData = new FormData();
+        // formData.append("title", values?.title);
+        // formData.append("slug", getSlug(values?.title));
+        // formData.append("moduleId",moduleId);
+        // formData.append("order", lessons.length.toString())
   
-        const formData = new FormData();
-        formData.append("title", values?.title);
-        formData.append("slug", getSlug(values?.title));
-        formData.append("moduleId",moduleId);
-        formData.append("order", lessons.length.toString())
-  
-        const lesson = await createLesson(formData); 
+        const lesson = await createLesson.mutateAsync(payload); 
   
         setLessons((lessons) => [
           ...lessons,
@@ -83,7 +98,7 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
         ]);
         toast.success("Lesson created");
         toggleCreating();
-        router.refresh();
+       
       } catch (error) {
         toast.error("Something went wrong");
       }
@@ -103,11 +118,16 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
     }
   };
 
-  const onEdit = (id:string) => {
-        const foundLesson = lessons.find(lessons => lessons.id === id);
-    setLessonToEdit(foundLesson||null);
-    setIsEditing(true);
-  };
+  // const onEdit = (id:string) => {
+  //   console.log('id',id)
+  //       // const foundLesson = lessons.find(lessons => lessons.id === id);
+  //   //     console.log('foundlesson',foundLesson)
+  //   // setLessonToEdit(foundLesson||null);
+  //   setIsEditing(true);
+  // };
+  const onEdit = (id: string) => {
+  setSelectedLessonId(id); // only update state, don't call hooks here
+};
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
