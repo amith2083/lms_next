@@ -14,7 +14,7 @@ export const PUT = async (request: NextRequest): Promise<NextResponse> => {
       { isBlocked: block },
       { new: true }
     );
-console.log('0000000000000000000',updatedUser)
+
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error: any) {
     console.error("Error updating user:", error);

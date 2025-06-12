@@ -76,7 +76,7 @@ export const getCourseDetails = async (id: string): Promise<DocumentWithId | nul
   const courseDetails: PopulatedCourse | null = await Course.findById(id)
     .populate({
       path: "category",
-      model: Category,
+      model: 'Category',
     })
     .populate({
       path: "instructor",
@@ -94,6 +94,7 @@ export const getCourseDetails = async (id: string): Promise<DocumentWithId | nul
       path: "modules",
       model: Module,
     }).lean();
+    console.log('cooursedetails',courseDetails)
 
   return courseDetails ? replaceMongoIdInObject(courseDetails) : null;
 };
