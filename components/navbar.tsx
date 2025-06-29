@@ -14,10 +14,10 @@ import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 
 const navLinks = [
-  {
-    title: "Features",
-    href: "/features",
-  },
+  // {
+  //   title: "Features",
+  //   href: "/features",
+  // },
   {
     title: "Courses",
     href: "/courses",
@@ -29,7 +29,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const{data:session}= useSession();
+  const{data:session,status}= useSession();
   const router = useRouter();
   const[loginSession,setLoginSession]= useState<Session | null>(null);
   useEffect(()=>{
@@ -67,61 +67,79 @@ const Navbar = () => {
           </nav>
         ) : null}
       </div>
-      <nav className="flex items-center gap-3 ">
-        {!loginSession&&  <div className="lg:flex item-center gap-3 hidden">
-            <Link href='/login' className={cn(buttonVariants({variant:'black',size:'sm'}),'px-4')}>
-            Login
-            </Link>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant='outline' size='sm'>Register</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="mt-5 " align="end">
-                    <DropdownMenuItem className="cursor-pointer">
-                        <Link href='/register/student'>student</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                        <Link href='/register/instructor'>Instructor</Link>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-        }
-       {loginSession&&<DropdownMenu>
+     
+        
+        
+      <nav className="flex items-center gap-3">
+  {status === "loading" ? (
+    // Show nothing or a skeleton while checking session
+    <div className="h-9 w-24 bg-gray-300 rounded-md animate-pulse hidden lg:block" />
+  ) : status === "unauthenticated" ? (
+    // Show Login + Register only when clearly not logged in
+    <div className="lg:flex items-center gap-3 hidden">
+      <Link
+        href="/login"
+        className={cn(buttonVariants({ variant: "black", size: "sm" }), "px-4")}
+      >
+        Login
+      </Link>
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-            <div className='cursor-pointer'>
-    <Avatar>
-    <AvatarImage src="https://sharethelife.org/wp-content/uploads/2021/01/Blank-profile-circle.png" alt="no image" />
-    <AvatarFallback>CN</AvatarFallback> 
-    </Avatar>
-            </div> 
-     </DropdownMenuTrigger>
-
-     <DropdownMenuContent align="end" className="w-56 mt-5">
-        <DropdownMenuItem className="cursor-pointer " asChild>
-            <Link href='account'>Profile</Link> 
+          <Button variant="outline" size="sm">
+            Register
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="mt-5" align="end">
+          <DropdownMenuItem asChild>
+            <Link href="/register/student">Student</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/register/instructor">Instructor</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  ) : (
+    // Authenticated: show avatar and dropdown
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="cursor-pointer">
+          <Avatar>
+            <AvatarImage
+              src="https://sharethelife.org/wp-content/uploads/2021/01/Blank-profile-circle.png"
+              alt="User"
+            />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56 mt-5">
+        <DropdownMenuItem asChild>
+          <Link href="/account">Profile</Link>
         </DropdownMenuItem>
-           {loginSession?.user?.role === "instructor" && (
-            <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href='instructor/dashboard'> <strong>Instructor Dashboard</strong> </Link> 
-        </DropdownMenuItem>
+        {session?.user?.role === "instructor" && (
+          <DropdownMenuItem asChild>
+            <Link href="/instructor/dashboard">
+              <strong>Instructor Dashboard</strong>
+            </Link>
+          </DropdownMenuItem>
         )}
+        <DropdownMenuItem asChild>
+          <Link href="/account/enrolled-courses">My Courses</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="#">Testimonials & Certificates</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href='account/enrolled-courses'>My Courses</Link> 
-        </DropdownMenuItem> 
-        <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href=''>Testimonials & Certificates</Link> 
-        </DropdownMenuItem> 
-        <DropdownMenuItem className="cursor-pointer" asChild>
- <Link href=''  onClick={handleLogout}>Logout</Link> 
-        </DropdownMenuItem> 
-    </DropdownMenuContent>   
-
+          <Link href="" onClick={handleLogout}>
+            Logout
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
     </DropdownMenu>
-    }
-        
-        
-      </nav>
+  )}
+</nav>
+
     </>
   );
 };

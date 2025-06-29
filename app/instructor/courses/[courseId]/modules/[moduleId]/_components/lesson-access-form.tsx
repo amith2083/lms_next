@@ -18,7 +18,8 @@ import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useUpdateLesson } from "@/app/hooks/useUpdateLesson";
+import { useUpdateLesson } from "@/app/hooks/useLesson";
+
 // import { updateLesson } from "@/app/actions/lesson";
 
 const formSchema = z.object({

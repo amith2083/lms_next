@@ -1,50 +1,22 @@
-import { dbConnect } from "@/service/mongo";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-import { User } from "@/model/user";
-import { getUsers } from "@/queries/users";
+import { UserService } from '@/service/UserService';
+import { UserRepository } from '@/app/respositories/UserRepository';
+import { dbConnect } from '@/service/mongo';
 
+const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
 
-// app/api/user/route.ts
-
-
-export const POST = async (request: NextRequest): Promise<NextResponse> => {
-  await dbConnect();
-  const { email } = await request.json();
-
+export async function GET(req: NextRequest) {
   try {
-    const user = await User.findOne({ email });
+    await dbConnect()
+    const user = await userService.getLoggedInUser();
+    console.log('user',user)
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Unauthenticated' }, { status: 401 });
     }
     return NextResponse.json(user, { status: 200 });
   } catch (error: any) {
-    console.error('Error fetching user:', error);
-    return NextResponse.json({ message: 'Error fetching user' }, { status: 500 });
+    return NextResponse.json({ message: error.message || 'Failed to fetch user' }, { status: 500 });
   }
-};
-
-
-  export const GET= async (request: NextRequest): Promise<NextResponse> => {
-    
-   
-  
-    await dbConnect();
-  
-  
-    try {
-        const users = await getUsers()
-        
-        return NextResponse.json(users, { status: 200 });
-    
-     
-    } catch (error: any) {
-      console.log(error)
-      return NextResponse.json(
-        { message: "Failed to fetch users" },
-        { status: 500 }
-      );
-    }
-  }
- 
-
+}

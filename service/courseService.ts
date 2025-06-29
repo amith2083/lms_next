@@ -1,65 +1,83 @@
+
 import { getLoggedInUser } from "@/lib/loggedInUser";
+import { DocumentWithId } from "@/lib/convertData";
 import { Course } from "@/model/course";
+import { ICourseRepository } from "@/app/interfaces/ICourseRepository";
+import { ICourse } from "@/app/interfaces/ICourse";
+import { ICourseService } from "@/app/interfaces/ICourseService";
+import mongoose from "mongoose";
 
-interface CourseData {
-  title: string;
-  description: string;
-  instructor?: string;
-}
+export class CourseService implements ICourseService {
+  constructor(private courseRepository: ICourseRepository) {}
 
-export const createCourse = async (data: CourseData) => {
-      console.log("createCourse called with data:", data);
-  const loggedInUser = await getLoggedInUser();
-  console.log('loggeduser',loggedInUser)
-  if (!loggedInUser) throw new Error("Unauthorized");
-   data["instructor"] = loggedInUser?.id
+  async createCourse(data: Partial<ICourse>): Promise<DocumentWithId> {
+    const loggedInUser = await getLoggedInUser();
+    if (!loggedInUser) throw new Error("Unauthorized");
 
-  const existing = await Course.findOne({
-    title: { $regex: `^${data.title}$`, $options: "i" },
-    instructor: loggedInUser.instructor,
-  });
-
-  if (existing) {
-    throw new Error("A course with this title already exists.");
-  }
-
-//   const course = await Course.create({
-//     ...data,
-//     instructor: user.id,
-//     status: false,
-//   });
-   const course = await Course.create(data);
-        return JSON.parse(JSON.stringify(course));
-
-//   return course;
-};
-
-export const updateCourse = async (
-  courseId: string,
-  data: Partial<{ title: string; description: string; price: number }>
-) => {
-  try {
-    const updatedCourse = await Course.findByIdAndUpdate(courseId, data, {
-      new: true,
+    const existing = await Course.findOne({
+      title: { $regex: `^${data.title}$`, $options: "i" },
+      instructor: loggedInUser.id,
     });
-    return updatedCourse;
-  } catch (error: any) {
-    throw new Error("Failed to update course: " + error.message);
+
+    if (existing) {
+      throw new Error("A course with this title already exists.");
+    }
+
+    const courseData = {
+      ...data,
+      instructor: loggedInUser.id,
+      status: false,
+    };
+
+    return this.courseRepository.createCourse(courseData);
   }
-};
 
-export const changeCoursePublishState = async (
-  courseId: string
-): Promise<boolean> => {
-  const course = await Course.findById(courseId);
-  if (!course) throw new Error("Course not found");
+  async getCourses(): Promise<DocumentWithId[]> {
+    return this.courseRepository.getCourses();
+  }
 
-  course.status = !course.status;
-  await course.save();
-  return course.status;
-};
+  async getCoursesForAdmin(): Promise<DocumentWithId[]> {
+    return this.courseRepository.getCoursesForAdmin();
+  }
 
-export const deleteCourse = async (courseId: string): Promise<void> => {
-  const deleted = await Course.findByIdAndDelete(courseId);
-  if (!deleted) throw new Error("Course not found or failed to delete");
-};
+  async getCourseDetails(id: string): Promise<DocumentWithId | null> {
+    return this.courseRepository.getCourseDetails(id);
+  }
+
+  async getCourseDetailsByInstructor(instructorId: string): Promise<DocumentWithId[]> {
+    return this.courseRepository.getCourseDetailsByInstructor(instructorId);
+  }
+
+  async updateCourse(courseId: string, data: Partial<ICourse>): Promise<DocumentWithId | null> {
+    return this.courseRepository.updateCourse(courseId, data);
+  }
+
+  async changeCoursePublishState(courseId: string): Promise<boolean> {
+    return this.courseRepository.changeCoursePublishState(courseId);
+  }
+
+  async deleteCourse(courseId: string): Promise<void> {
+    return this.courseRepository.deleteCourse(courseId);
+  }
+  
+ async updateQuizSetForCourse (courseId: string, quizSetId: string) {
+    const updateData = {
+      quizSet: new mongoose.Types.ObjectId(quizSetId),
+    };
+
+    return await this.courseRepository.updateQuizSetForCourse(courseId, updateData);
+  }
+
+  async getRelatedCourses(courseId:string, categoryId:string) {
+        try {
+            const relatedCourses = await this.courseRepository.getRelatedCourses(courseId, categoryId);
+            
+            // Example: Add business logic if needed
+            // E.g., limit to 5 courses
+            return relatedCourses
+        } catch (error) {
+            throw new Error("Error in getting related courses: " + error.message);
+        }
+    }
+
+}

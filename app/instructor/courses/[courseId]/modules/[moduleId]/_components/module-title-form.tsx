@@ -18,8 +18,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSlug } from "@/lib/convertData";
-import { updateModule } from "@/app/actions/module";
-import { useUpdateModule } from "@/app/hooks/useUpdateModule";
+import { useUpdateModule } from "@/app/hooks/useModule";
+
 type FormValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
   title: z.string().min(1),

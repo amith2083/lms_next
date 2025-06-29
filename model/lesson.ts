@@ -1,17 +1,8 @@
+import { ILesson } from "@/app/interfaces/ILesson";
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 
-export interface ILesson extends Document {
-  _id: Types.ObjectId;
-  title: string;
-  description?: string;
-  duration: number;
-  video_url?: string;
-  active: boolean;
-  slug: string;
-  access: "private" | "public"; // optional: restrict values
-  order: number;
-}
+
 
 
 const lessonSchema: Schema<ILesson> = new Schema({

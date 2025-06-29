@@ -72,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // Called whenever a user signs in
     async signIn({ user, account, }) {
   
-      console.log("🔁 signIn callback:", { user, account });
+      // console.log("🔁 signIn callback:", { user, account });
       if (account?.provider === "credentials") {
         if (!user?.isVerified) {
           console.log(" Instructor pending approval");
@@ -93,7 +93,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
           console.log(" Google user created:", newUser.email);
         }else{
-            console.log(" Existing user found with Google email:", existingUser.email);
+            // console.log(" Existing user found with Google email:", existingUser.email);
             user.id = existingUser._id.toString(); // Use existing user ID
             user.role = existingUser.role;
             user.isVerified = existingUser.isVerified;
@@ -114,7 +114,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async jwt({ token, user }) {
-     console.log('=================== JWT callback - BEFORE:', token);
+    //  console.log('=================== JWT callback - BEFORE:', token);
 
   // On initial sign in
   if (user) {
@@ -131,7 +131,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }
   }
 
-  console.log('=================== JWT callback - AFTER:', token);
+  // console.log('=================== JWT callback - AFTER:', token);
         // if (user) {
        
         //   token.id = user._id.toString()

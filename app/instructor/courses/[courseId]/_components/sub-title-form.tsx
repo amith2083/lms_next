@@ -5,7 +5,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { 
+import {
   Form,
   FormControl,
   FormField,
@@ -18,11 +18,11 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { toast } from 'sonner';
-import { useUpdateCourse } from "@/app/hooks/useUpdateCourse";
+import { toast } from "sonner";
+import { useUpdateCourse } from "@/app/hooks/useCourse";
 
 const formSchema = z.object({
-    subtitle: z.string().min(1, {
+  subtitle: z.string().min(1, {
     message: "Title is required",
   }),
 });
@@ -34,9 +34,12 @@ interface TitleFormProps {
   courseId: string;
 }
 
-export const SubTitleForm: React.FC<TitleFormProps> = ({ initialData,  courseId }) => {
+export const SubTitleForm: React.FC<TitleFormProps> = ({
+  initialData,
+  courseId,
+}) => {
   const router = useRouter();
-  
+
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -47,12 +50,12 @@ export const SubTitleForm: React.FC<TitleFormProps> = ({ initialData,  courseId 
   });
 
   const { isSubmitting, isValid } = form.formState;
- const { mutateAsync } = useUpdateCourse(courseId);
-  const onSubmit = async (values:FormValues) => {
-    try { 
-       await mutateAsync(values);
+  const { mutateAsync } = useUpdateCourse(courseId);
+  const onSubmit = async (values: FormValues) => {
+    try {
+      await mutateAsync(values);
       toggleEdit();
-      
+
       toast.success("Course SubTittle has been updated");
     } catch (error) {
       toast.error("Something went wrong");

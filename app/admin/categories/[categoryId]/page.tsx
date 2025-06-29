@@ -1,4 +1,4 @@
-
+'use client'
 import {
   CircleDollarSign,
   ListChecks,
@@ -17,6 +17,8 @@ import { sanitizeData } from "@/utils/sanitize";
 import { getCategory } from "@/queries/categories";
 import { Category } from "@/model/category";
 import { CategoryActions } from "./_components/category-actions";
+import { useCategoryDetails } from "@/app/hooks/useCategories";
+
 
 
 
@@ -26,11 +28,22 @@ interface CategoryPageProps {
   };
 }
 
-const EditCategory = async ({ params }: CategoryPageProps) => {
+const EditCategory =  ({ params }: CategoryPageProps) => {
     const{categoryId}= params
- 
+   
+console.log('EditCategory categoryId', categoryId);
+ const { data:category ,isLoading,error } = useCategoryDetails(categoryId);
+ console.log('cater',category)
+ if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-  const category = await getCategory(categoryId);
+  if (error || !category) {
+    return <div>Error: Category not found</div>;
+  }
+
+  // const category = await getCategory(categoryId);
+  
    // Sanitize fucntion for handle ObjectID and Buffer
 
 
@@ -66,7 +79,11 @@ const EditCategory = async ({ params }: CategoryPageProps) => {
               categoryId={categoryId}
             />
             <ImageForm
-              initialData={{ imageUrl: `/assets/images/categories/${category?.thumbnail}` }}
+              initialData={{
+    imageUrl: category?.thumbnail
+      ? `/assets/images/categories/${category.thumbnail}`
+      : '/assets/images/categories/default.png'
+  }}
               categoryId={categoryId}
             />
            

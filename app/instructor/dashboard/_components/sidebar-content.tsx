@@ -34,6 +34,11 @@ const routes = [
     label: "Quizes",
     href: "/instructor/quiz-sets",
   },
+    {
+    icon: CirclePlus,
+    label: "Add Quizset",
+    href: "/instructor/quiz-sets/add",
+  },
   {
     icon: MessageCircleMore,
     label: "chat",

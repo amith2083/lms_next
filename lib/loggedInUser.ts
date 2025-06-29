@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 import { auth } from "@/auth";
 import { getUserByEmail } from "@/queries/users";
 

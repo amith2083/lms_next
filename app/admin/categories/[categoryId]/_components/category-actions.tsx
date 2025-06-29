@@ -2,10 +2,11 @@
 
 import { Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, act } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { changeCategoryPublishState, deleteCategory } from "@/app/actions/category";
+import { useDeleteCategory, useToggleCategoryStatus } from "@/app/hooks/useCategories";
+
 
 
 interface CategoryActionsProps {
@@ -17,6 +18,8 @@ export  const CategoryActions: React.FC<CategoryActionsProps> = ({ categoryId, s
   const [action, setAction] = useState<"change-active" | "delete" | null>(null);
   const [published, setPublished] = useState<boolean>(status);
   const router = useRouter();
+     const toggleMutation = useToggleCategoryStatus(categoryId);
+    const deleteMutation = useDeleteCategory(categoryId);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,10 +27,11 @@ export  const CategoryActions: React.FC<CategoryActionsProps> = ({ categoryId, s
     try {
       switch (action) {
         case "change-active": {
-          const activeState = await changeCategoryPublishState(categoryId);
-          setPublished(activeState);
+          const activeState = await toggleMutation.mutateAsync(categoryId);
+         
+          setPublished(activeState.status);
           toast.success("The category has been updated");
-          router.refresh();
+         
           break;
         }
 
@@ -35,7 +39,7 @@ export  const CategoryActions: React.FC<CategoryActionsProps> = ({ categoryId, s
           if (published) {
             toast.error("A published category cannot be deleted. First unpublish it, then delete.");
           } else {
-            await deleteCategory(categoryId);
+            await deleteMutation.mutateAsync(categoryId);
             toast.success("The category has been deleted successfully");
             router.push("/admin/categories");
           }

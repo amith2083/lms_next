@@ -17,7 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { createCategory } from "@/app/actions/category";
+import { useCreateCategory } from "@/app/hooks/useCategories";
+
 
 const formSchema = z.object({
   title: z.string().min(3, { message: "Title is required." }),
@@ -28,6 +29,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function AddCategory() {
   const router = useRouter();
+  const { mutateAsync } = useCreateCategory();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -41,7 +43,7 @@ export default function AddCategory() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await createCategory(values);
+      await mutateAsync(values);
       toast.success("Category created successfully!");
       form.reset();
       router.push("/admin/categories");

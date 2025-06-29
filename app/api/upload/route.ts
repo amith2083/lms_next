@@ -4,8 +4,17 @@ import fs from "fs";
 import { pipeline } from "stream";
 import { promisify } from "util";
 // import { updateCourse } from "@/app/actions/course";
-import { updateCategory } from "@/app/actions/category"; 
-import { updateCourse } from "@/service/courseService";
+// import { updateCategory } from "@/app/actions/category"; 
+import { CourseRepository } from "@/app/respositories/CourseRepository";
+import { CourseService } from "@/service/CourseService";
+import { CategoryService } from "@/service/CategoryService";
+import { CategoryRepository } from "@/app/respositories/CategoryRepository";
+// import { updateCourse } from "@/service/CourseService";
+
+const courseRepository = new CourseRepository();
+const courseService = new CourseService(courseRepository);
+const categoryRepository = new CategoryRepository();
+const categoryService = new CategoryService(categoryRepository);
 
 const pump = promisify(pipeline);
 
@@ -50,9 +59,9 @@ console.log("File stream:", typeof file.stream);
 
     // Update DB record with the filename
     if (courseId) {
-      await updateCourse(courseId, { thumbnail: file.name });
+      await  courseService.updateCourse(courseId, { thumbnail: file.name });
     } else if (categoryId) {
-      await updateCategory(categoryId, { thumbnail: file.name });
+      await categoryService.updateCategory(categoryId, { thumbnail: file.name });
     }
 
     return new NextResponse(`File ${file.name} uploaded successfully`, {

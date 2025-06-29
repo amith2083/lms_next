@@ -7,7 +7,7 @@ import { formatMyDate } from "@/lib/date";
 
 const CourseDetails = ({course}) => {
     const lastModifiedDate = formatMyDate(course.modifiedOn)
-    console.log(lastModifiedDate)
+    
     return (
         <section className="py-8 md:py-12 lg:py-24">
         <div className="container">

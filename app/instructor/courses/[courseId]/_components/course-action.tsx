@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useDeleteCourse, useToggleCoursePublish } from "@/app/hooks/useCourse";
 // import { changeCoursePublishState, deleteCourse } from "@/app/actions/course";
-import { useToggleCoursePublish } from "@/app/hooks/useToggleCoursePublish";
-import { useDeleteCourse } from "@/app/hooks/useDeleteCourse";
 
 interface CourseActionsProps {
   courseId: string;

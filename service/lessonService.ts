@@ -1,101 +1,42 @@
-import { ILesson, Lesson } from "@/model/lesson";
-import { Module } from "@/model/module";
-import { create } from "@/queries/lesson";
-interface CreateLessonInput {
-  title: string;
-  slug: string;
-  moduleId: string;
-  order: number;
-}
-export const createLesson= async(data:CreateLessonInput):Promise<ILesson>=>{
-    try {
-        const { title, slug, moduleId, order } = data;
-        // const title = data.get("title") as string;
-        // const slug = data.get("slug") as string;
-        // const moduleId = data.get("moduleId");
-        // const order = Number(data.get("order"));
 
-        const createdLesson = await create({title,slug,order});
+import { ILesson } from "@/app/interfaces/ILesson";
+import { ILessonRepository } from "@/app/interfaces/ILessonRepository";
+import { ILessonService } from "@/app/interfaces/ILessonService";
+import { DocumentWithId } from "@/lib/convertData";
+import { Lesson } from "@/model/lesson";
 
-        const moduleWithLesson = await Module.findById(moduleId);
-           if (!moduleWithLesson) {
-            throw new Error("Module not found");
-           }
-        moduleWithLesson.lessonIds.push(createdLesson._id);
-        moduleWithLesson.save();
 
-        return createdLesson;
-        
-    } catch (e) {
-        if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error("Unknown error occurred during lesson creation");
+export class LessonService implements ILessonService {
+  constructor(private lessonRepository: ILessonRepository) {}
+
+  async createLesson(data: Partial<ILesson>, moduleId: string): Promise<DocumentWithId> {
+    const existing = await Lesson.findOne({
+      title: { $regex: `^${data.title}$`, $options: "i" },
+      // Note: We don't check moduleId here as lessons are not directly tied to modules in the schema
+    });
+
+    if (existing) {
+      throw new Error("A lesson with this title already exists.");
     }
-    }
-}
 
-export const updateLesson = async (
-  lessonId: string,
-  data: string | Record<string, any>
-): Promise<void> => {
-    try {
-         console.log("Updating lesson ID:", lessonId);
-    console.log("Update data:", data);
-       const updatedLesson= await Lesson.findByIdAndUpdate(lessonId,data,{new:true});
-       return updatedLesson
-    } catch (e) {
-        if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error("Unknown error occurred during lesson reordering");
-    }
-        
-    }
-}
+    return this.lessonRepository.createLesson(data, moduleId);
+  }
 
-export const changeLessonPublishState = async (lessonId: string): Promise<boolean> => {
-  try {
-    const lesson = await Lesson.findById(lessonId);
+  async getLesson(lessonId: string): Promise<DocumentWithId | null> {
+    const lesson = await this.lessonRepository.getLesson(lessonId);
     if (!lesson) throw new Error("Lesson not found");
-
-    const updated = await Lesson.findByIdAndUpdate(
-      lessonId,
-      { active: !lesson.active },
-      { new: true, lean: true }
-    );
-
-    if (!updated) throw new Error("Failed to update lesson");
-
-    return updated.active;
-  } catch (e) {
-    if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error("Unknown error occurred during changing publish state");
-    }
+    return lesson;
   }
-};
 
-export const deleteLesson = async (
-  lessonId: string,
-  moduleId: string
-): Promise<void> => {
-  try {
-    const module = await Module.findById(moduleId);
-    if (!module) throw new Error("Module not found");
-
-    // module.lessonIds.pull(new Mongoose.Types.ObjectId(lessonId));
-    module.lessonIds = module.lessonIds.filter(
-  (id) => id.toString() !== lessonId
-);
-    await Lesson.findByIdAndDelete(lessonId);
-    await module.save();
-  } catch (e) {
-    if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error("Unknown error occurred during lesson deletion");
-    }
+  async updateLesson(lessonId: string, data: Partial<ILesson>): Promise<DocumentWithId | null> {
+    return this.lessonRepository.updateLesson(lessonId, data);
   }
-};
+
+  async changeLessonPublishState(lessonId: string): Promise<boolean> {
+    return this.lessonRepository.changeLessonPublishState(lessonId);
+  }
+
+  async deleteLesson(lessonId: string, moduleId: string): Promise<void> {
+    return this.lessonRepository.deleteLesson(lessonId, moduleId);
+  }
+}

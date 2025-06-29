@@ -44,8 +44,9 @@ export async function createCheckoutSession(data){
     });
 
     return {
-        client_secret: checkoutSession.client_secret,
-        url: checkoutSession.url,
+        client_secret: checkoutSession.client_secret,  //The user is taken to a secure, Stripe-hosted checkout page where they:
+                  url: checkoutSession.url,            //Enter payment details (e.g., credit card number).
+                                                       //Confirm the payment.                    
     };
 
 }

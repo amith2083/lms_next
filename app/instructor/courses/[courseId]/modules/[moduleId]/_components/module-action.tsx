@@ -3,12 +3,12 @@
 import { Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
+// import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
 import { toast } from "sonner";
 // import { changeModulePublishState, deleteModule } from "@/app/actions/module";
 import { useRouter } from "next/navigation";
-import { useToggleModulePublish } from "@/app/hooks/useToggleModulePublish";
-import { useDeleteModule } from "@/app/hooks/useDeleteModule";
+import { useDeleteModule, useToggleModulePublish } from "@/app/hooks/useModule";
+
 
 
 

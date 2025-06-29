@@ -1,4 +1,5 @@
 import mongoose, { Schema, model, models } from 'mongoose';
+import { IUser } from '@/app/interfaces/IUser';
 
 const userSchema = new Schema({
   name: { required: true, type: String },
@@ -10,7 +11,7 @@ const userSchema = new Schema({
     doc: { type: String },
   bio: { type: String },
   phone: { type: Number },
-  socialMedia: { type: Object },
+  website: { type: String },
   profilePicture: { type: String },
   designation: { type: String },
   isGoogleUser: { type: Boolean, default: false },
@@ -26,4 +27,6 @@ const userSchema = new Schema({
   }
 }, { timestamps: true });
 
-export const User: any = models.User || model('User', userSchema);
+// export const User: any = models.User || model('User',userSchema);
+// export const User = mongoose.models.User || mongoose.model("User", userSchema);
+export const User = mongoose.models.User || model<IUser>('User', userSchema);

@@ -1,18 +1,17 @@
-// import { getInstructorDashboardData, COURSE_DATA } from "@/lib/dashboardHelper";
+
 "use client";
 
-
-import { useInstructorCourses } from "@/app/hooks/useInstructorCourses";
+import { useInstructorCourses } from "@/app/hooks/useCourse";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
 import { sanitizeData } from "@/utils/sanitize";
 
-// Define a generic type for course objects (you can replace it with a specific interface if you have one)
+
 interface Course {
   [key: string]: any;
 }
 
-const CoursesPage =  (): JSX.Element => {
+const CoursesPage = (): JSX.Element => {
   // const rawData = await getInstructorDashboardData(COURSE_DATA);
   const { data, isLoading, error } = useInstructorCourses();
 

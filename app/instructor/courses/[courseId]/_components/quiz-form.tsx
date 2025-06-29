@@ -18,6 +18,8 @@ import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useUpdateCourse } from "@/app/hooks/useCourse";
+
 
 const formSchema = z.object({
   quizSetId: z.string().min(1),
@@ -38,7 +40,9 @@ export const QuizSetForm = ({
   ],
 }) => {
   const router = useRouter();
+  const updateCourse = useUpdateCourse(courseId);
   const [isEditing, setIsEditing] = useState(false);
+    const foundMatch = options.find(o => o.value === initialData.quizSetId);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
@@ -52,10 +56,15 @@ export const QuizSetForm = ({
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values) => {
+    console.log('valquiz',values)
     try {
+        await updateCourse.mutateAsync({
+      action: "update-quizset",
+      quizSetId: values.quizSetId,
+    });
       toast.success("Course updated");
       toggleEdit();
-      router.refresh();
+      // router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
     }
@@ -83,10 +92,10 @@ export const QuizSetForm = ({
             !initialData.quizSetId && "text-slate-500 italic"
           )}
         >
-          {"No quiz set selected"}
+          {foundMatch ? <span>{foundMatch.label}</span> : <span> "No Quiz set selected"</span>}
         </p>
       )}
-      {console.log({ options })}
+      
       {isEditing && (
         <Form {...form}>
           <form

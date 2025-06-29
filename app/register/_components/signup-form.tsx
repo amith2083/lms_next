@@ -13,72 +13,119 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from "sonner";
+import { refinedSignupSchema } from "../validations/signupValidation";
+import { sub } from "date-fns";
+// import { useAuthStore } from '@/lib/store/authStore';
 
 interface SignupFormProps {
   role: string;
 }
 export const SignupForm= ({ role }: SignupFormProps)=> {
-  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { setError, setOtpEmail, error, isLoading, setLoading } = useAuthStore();
-useEffect(() => {
-  console.log("Error state:", error);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [passwordScore, setPasswordScore] = useState(0);
+  const [password, setPassword] = useState("");
 
-  console.log("Loading state:", isLoading);
-}, [error, isLoading]);
+
+
+  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // const { setError, setOtpEmail, error, isLoading, setLoading } = useAuthStore();
+
   const router = useRouter()
 
- 
+ const checkPasswordStrength = (password: string) => {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[@$!%*?&]/.test(password)) score++;
+  return score; // score is 0–5
+};
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  setError(null);
-    setLoading(true);
+
+   
   // setErrorMessage(null);
 
   const form = e.currentTarget;
   const formData = new FormData(form);
+ // Build a plain object from FormData
+  const formValues = {
+    name: formData.get("name")?.toString() || "",
+    email: formData.get("email")?.toString() || "",
+    password: formData.get("password")?.toString() || "",
+    confirmPassword: formData.get("confirmPassword")?.toString() || "",
+    userRole: role === "student" || role === "instructor" ? role : "student",
+    verificationDocs: formData.get("verificationDocs") || undefined,
+  };
 
-  const password = formData.get("password")?.toString();
-  const confirmPassword = formData.get("confirmPassword")?.toString();
+  // Validate using Zod
+  const result = refinedSignupSchema.safeParse(formValues);
 
-  if (password !== confirmPassword) {
-    // setErrorMessage("Passwords do not match.");
-    setError('Passwords do not match.');
-      setLoading(false);
+  // if (!result.success) {
+  //   // Display validation errors
+  //   result.error.errors.forEach((err) => {
+  //     toast.error(`${err.path[0]}: ${err.message}`);
+  //   });
+  //   return;
+  // }
+  if (!result.success) {
+  const errors: Record<string, string> = {};
+  result.error.errors.forEach((err) => {
+    const field = err.path[0] as string;
+    errors[field] = err.message;
+  });
+  setFormErrors(errors);
+  return;
+}
+setFormErrors({});
+
+  // If validation passes, continue to submit
+  const validData = result.data;
+  // const password = formData.get("password")?.toString();
+  // const confirmPassword = formData.get("confirmPassword")?.toString();
+
+  // if (password !== confirmPassword) {
+  //   // setErrorMessage("Passwords do not match.");
+  //   toast.error('Passwords do not match.');
+      
+  //   return;
+  // }
+
+  // formData.set("userRole", role === "student" || role === "instructor" ? role : "student");
+  // Prepare FormData again for sending to backend (if files involved)
+  const submitFormData = new FormData();
+  Object.entries(validData).forEach(([key, value]) => {
+    if (value !== undefined) {
+      submitFormData.append(key, value);
+    }
+  });
+
+  try {
+    const response = await fetch("/api/users/signup", {
+      method: "POST",
+      body: submitFormData, // use FormData, not JSON
+    });
+
+     const data = await response.json();
+       if (!response.ok) {
+    toast.error(data.message || "Something went wrong.");
     return;
   }
 
-  formData.set("userRole", role === "student" || role === "instructor" ? role : "student");
-
-  try {
-    const response = await fetch("/api/register", {
-      method: "POST",
-      body: formData, // use FormData, not JSON
-    });
-
-    if (response.status === 409) {
-      const error = await response.json();
-      // setErrorMessage(error.message);
-      setError(error.message)
-    }
+   
 
     if (response.status === 201) {
-      // localStorage.setItem("otpEmail", formData.get("email") as string);
+      localStorage.setItem("otpEmail", formData.get("email") as string);
       const email = formData.get('email') as string;
-        setOtpEmail(email); // Set otpEmail in Zustand store
+        // setOtpEmail(email); // Set otpEmail in Zustand store
       router.push("/otp");
-    }else {
-  const error = await response.json();
-  console.error("Unexpected response:", error);
-  // setErrorMessage(error.message || "Registration failed");
-  setError(error.message || 'Registration failed');
-}
+    }
   } catch (error) {
     console.log("err", error);
-    setError('An unexpected error occurred');
-  }finally {
-      setLoading(false);
-    }
+    toast.error('An unexpected error occurred');
+  }
 };
 
   return (
@@ -103,6 +150,7 @@ useEffect(() => {
               <div className="grid gap-2">
                 <Label htmlFor="first-name"> Name</Label>
                 <Input id="first-name" name="name" placeholder="Max" required />
+                {formErrors.name && <p className="text-red-500 text-sm">{formErrors.name}</p>}
               </div>
               {/* <div className="grid gap-2">
               <Label htmlFor="last-name">Last name</Label>
@@ -118,10 +166,47 @@ useEffect(() => {
                 placeholder="m@example.com"
                 required
               />
+              {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" name="password" required />
+              <Input id="password" type="password" name="password" required    onChange={(e) => {
+    const val = e.target.value;
+    setPassword(val);
+    setPasswordScore(checkPasswordStrength(val));}}/>
+   {password.length > 0 && (
+  <>
+    <div className="h-2 w-full rounded-full bg-gray-200 mt-1">
+      <div
+        className={`h-full rounded-full transition-all duration-300 ${
+          passwordScore <= 2
+            ? "bg-red-500 w-1/3"
+            : passwordScore <= 4
+            ? "bg-yellow-500 w-2/3"
+            : "bg-green-500 w-full"
+        }`}
+      ></div>
+    </div>
+    <p
+      className={`text-xs mt-1 ${
+        passwordScore <= 2
+          ? "text-red-500"
+          : passwordScore <= 4
+          ? "text-yellow-600"
+          : "text-green-600"
+      }`}
+    >
+      {passwordScore <= 2
+        ? "Weak"
+        : passwordScore <= 4
+        ? "Medium"
+        : "Strong"}
+    </p>
+  </>
+)}
+
+
+              {formErrors.password && <p className="text-red-500 text-sm">{formErrors.password}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -130,6 +215,7 @@ useEffect(() => {
                 type="password"
                 name="confirmPassword" required
               />
+              {formErrors.confirmPassword && <p className="text-red-500 text-sm">{formErrors.confirmPassword}</p>}
             </div>
             {role === "instructor" && (
   <div className="grid gap-2">
@@ -141,16 +227,17 @@ useEffect(() => {
       accept=".pdf,.jpg,.jpeg,.png"
       required
     />
+    {formErrors.verificationDocs && <p className="text-red-500 text-sm">{formErrors.verificationDocs}</p>}
   </div>
 )}
-            {error && (
+            {/* {errorMessage && (
   <p className="text-red-500 text-sm text-center mt-2">
-    {error}
+    {errorMessage}
   </p>
-)}
+)} */}
 
-            <Button type="submit" className="w-full cursor-pointer" variant='black'disabled ={isLoading} >
-             {isLoading ? 'Creating account...' : 'Create an account'}
+            <Button type="submit" className="w-full cursor-pointer" variant='black' >
+             Create an account
             </Button>
           </div>
         </form>

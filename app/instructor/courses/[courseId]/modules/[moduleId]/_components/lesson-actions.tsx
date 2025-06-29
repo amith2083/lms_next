@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 // import { changeLessonPublishState, deleteLesson } from "@/app/actions/lesson";
 import { toast } from "sonner";
-import { useToggleLessonPublish } from "@/app/hooks/useToggleLessonPublish";
-import { useDeleteLesson } from "@/app/hooks/useDeleteLesson";
+import { useDeleteLesson, useToggleLessonPublish } from "@/app/hooks/useLesson";
+
 
 
 

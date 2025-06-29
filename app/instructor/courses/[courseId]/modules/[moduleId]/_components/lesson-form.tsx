@@ -21,9 +21,9 @@ import { toast } from "sonner";
 import { LessonList } from "./lesson-list";
 import { LessonModal } from "./lesson-modal";
 import { getSlug } from "@/lib/convertData";
-import { createLesson, reOrderLesson } from "@/app/actions/lesson";
-import { useCreateLesson } from "@/app/hooks/useCreateLesson";
-import { useLesson } from "@/app/hooks/useLesson";
+
+
+import { useCreateLesson, useLesson } from "@/app/hooks/useLesson";
 
 
 interface Lesson {
@@ -104,19 +104,19 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
       }
     }; 
  
-  const onReorder = async (updateData:ReorderData[]) => {
-    console.log({ updateData });
-    try {
-      setIsUpdating(true);
-      await reOrderLesson(updateData);
-      toast.success("Lesson reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  // const onReorder = async (updateData:ReorderData[]) => {
+  //   console.log({ updateData });
+  //   try {
+  //     setIsUpdating(true);
+  //     await reOrderLesson(updateData);
+  //     toast.success("Lesson reordered");
+  //     router.refresh();
+  //   } catch {
+  //     toast.error("Something went wrong");
+  //   } finally {
+  //     setIsUpdating(false);
+  //   }
+  // };
 
   // const onEdit = (id:string) => {
   //   console.log('id',id)
@@ -188,7 +188,7 @@ export const LessonForm: React.FC<LessonFormProps> = ({ initialData=[], moduleId
           {!lessons?.length && "No module"}
           <LessonList
             onEdit={onEdit}
-            onReorder={onReorder}
+            // onReorder={onReorder}
             items={lessons || []}
           />
         </div>

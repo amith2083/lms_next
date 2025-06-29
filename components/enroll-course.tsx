@@ -4,11 +4,21 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { createCheckoutSession } from '@/app/actions/stripe';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 // import { createCheckoutSession } from '@/app/actions/stripe';
 
 const EnrollCourse = ({ asLink,courseId }) => {
+     const { data: session, status } = useSession();
+  const router = useRouter();
+
+
 
     const formAction = async(data) => {
+          if (!session) {
+      router.push("/login");
+      return;
+    }
         const { url } = await createCheckoutSession(data);
         window.location.assign(url);
     }

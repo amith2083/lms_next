@@ -11,7 +11,7 @@ import { TitleForm } from "./_components/title";
 import { SubTitleForm } from "./_components/sub-title-form";
 import { DescriptionForm } from "./_components/description";
 import { ImageForm } from "./_components/image-form";
-// import { QuizSetForm } from "./_components/quiz-form";
+import { QuizSetForm } from "./_components/quiz-form";
 import { ModulesForm } from "./_components/module-form";
 import { PriceForm } from "./_components/price-form";
 import AlertBanner from "@/components/alert-banner";
@@ -20,8 +20,11 @@ import { sanitizeData } from "@/utils/sanitize";
 import { replaceMongoIdInArray } from "@/lib/convertData";
 import { CategoryForm } from "./_components/category-form";
 // import { GetAllCategories } from "@/queries/categories";
-import { useCourseDetails } from "@/app/hooks/useCourseDetails";
-import { useCategories } from "@/app/hooks/useCategories";
+
+import { useGetCategories } from "@/app/hooks/useCategories";
+import { useGetQuizsets } from "@/app/hooks/useQuiz";
+import { useCourseDetails } from "@/app/hooks/useCourse";
+
 
 
 
@@ -37,7 +40,10 @@ const EditCourse =  ({ params }: CoursePageProps) => {
 
   // const course = await getCourseDetails(courseId);
   const { data: course, isLoading: isLoadingCourse } = useCourseDetails(courseId);
-  const { data:categories = [], isLoading: isLoadingCategories } = useCategories();
+  const { data:categories = [], isLoading: isLoadingCategories } = useGetCategories();
+  
+ const{data:allQuizSets,isLoading}= useGetQuizsets()
+  
   
 
     // const categories = await GetAllCategories();
@@ -59,6 +65,16 @@ const EditCourse =  ({ params }: CoursePageProps) => {
  const rawmodules =  replaceMongoIdInArray(course?.modules).sort((a,b) => a.order - b.order)||[];
 
  const modules = sanitizeData(rawmodules);
+
+ let mappedQuizSet = [];
+  if (allQuizSets && allQuizSets.length > 0) {
+    mappedQuizSet = allQuizSets.map(quizSet => {
+      return {
+        value: quizSet.id,
+        label: quizSet.title,
+      }
+    })
+  }
   return (
     <>
        {
@@ -94,7 +110,7 @@ const EditCourse =  ({ params }: CoursePageProps) => {
             />
              <CategoryForm initialData={{value: course?.category?.title }} courseId={courseId} options={mappedCategories} />
 
-            {/* <QuizSetForm initialData={{}} courseId={courseId} /> */}
+            <QuizSetForm initialData={{ quizSetId: course?.quizSet?.toString()  }} courseId={courseId} options={mappedQuizSet} />
           </div>
           <div className="space-y-6">
             <div>

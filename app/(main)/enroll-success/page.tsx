@@ -24,7 +24,10 @@ const Success = async ({ searchParams : {session_id, courseId} }) => {
   } 
 
   const course = await getCourseDetails(courseId);
-  console.log('Successcourse',course)
+  if (!course) {
+    errorMessage = "Course not found. Please check the course ID or contact support.";
+    throw new Error("Course not found");
+  }
 
   const loggedInUser = await getUserByEmail(userSession?.user?.email);
     console.log('Successlogin',loggedInUser)
@@ -53,7 +56,7 @@ const Success = async ({ searchParams : {session_id, courseId} }) => {
       loggedInUser?.id,
       "stripe"
     );
-    console.log(enrolled);
+    
 
     // Send emails to the instructor and student who paid 
 
@@ -77,7 +80,7 @@ const Success = async ({ searchParams : {session_id, courseId} }) => {
     ];
 
       const emailSendResponse = await sendEmails(emailsToSend);
-     console.log('emailres++++++++++++++++',emailSendResponse);
+    
     
   }
 
@@ -100,9 +103,9 @@ const Success = async ({ searchParams : {session_id, courseId} }) => {
           <Button asChild size="sm">
             <Link href="/courses">Browse Courses</Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
+          {/* <Button asChild variant="outline" size="sm">
             <Link href="#">Play Course</Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

@@ -17,7 +17,8 @@ import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useUpdateCourse } from "@/app/hooks/useUpdateCourse";
+import { useUpdateCourse } from "@/app/hooks/useCourse";
+
 // import { updateCourse } from "@/app/actions/course";
 
 const formSchema = z.object({

@@ -18,7 +18,7 @@ import { replaceMongoIdInArray } from "@/lib/convertData";
 import { sanitizeData } from "@/utils/sanitize";
 import { getModule } from "@/queries/modules";
 import { ModuleActions } from "./_components/module-action";
-import { useModule } from "@/app/hooks/useModule";
+import { useGetModule } from "@/app/hooks/useModule";
 import { useMemo } from "react";
 
 interface LessonPageProps {
@@ -32,7 +32,7 @@ const Module =  ({ params:{courseId, moduleId} }:LessonPageProps) => {
 
   // const Singlemodule = await getModule(moduleId);
   // const sanitizeModule = await sanitizeData(Singlemodule)
-   const { data: moduleData, isLoading, error } = useModule(moduleId);
+   const { data: moduleData, isLoading, error } = useGetModule(moduleId);
 
   //  const sanitizeModule =  sanitizeData(moduleData)
 

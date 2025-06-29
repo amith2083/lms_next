@@ -24,14 +24,14 @@ const CourseDetailsIntro = ({course}) => {
 
                 <div className="mt-6 flex items-center justify-center flex-wrap gap-3">
                  <EnrollCourse courseId={course?.id}/>
-                  <Link
+                  {/* <Link
                     href=""
                     className={cn(
                       buttonVariants({ variant: "outline", size: "lg" })
                     )}
                   >
                     See Intro
-                  </Link>
+                  </Link> */}
                   <Link
                     href=""
                     className={cn(

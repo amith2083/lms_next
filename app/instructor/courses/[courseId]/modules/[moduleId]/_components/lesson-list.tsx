@@ -22,10 +22,10 @@ interface LessonItem {
 
 interface LessonListProps {
   items: LessonItem[];
-  onReorder: (updatedLessons: { id: string; position: number }[]) => void;
+  // onReorder: (updatedLessons: { id: string; position: number }[]) => void;
   onEdit: (id: string) => void;
 }
-export const LessonList: React.FC<LessonListProps> = ({ items, onReorder, onEdit }) => {
+export const LessonList: React.FC<LessonListProps> = ({ items, onEdit }) => {
   console.log('items',items)
   const [isMounted, setIsMounted] = useState(false);
   const [lessons, setLessons] = useState<LessonItem[]>(items);
@@ -57,7 +57,7 @@ export const LessonList: React.FC<LessonListProps> = ({ items, onReorder, onEdit
       position: items.findIndex((item) => item.id === module.id),
     }));
 
-    onReorder(bulkUpdateData);
+    // onReorder(bulkUpdateData);
   };
 
   if (!isMounted) {

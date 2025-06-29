@@ -22,13 +22,13 @@ interface Module {
 // Define the component props
 interface ModuleListProps {
   items: Module[];
-  onReorder: (data: { id: string; position: number }[]) => void;
+  // onReorder: (data: { id: string; position: number }[]) => void;
   onEdit: (id: string) => void;
 }
 
 export const ModuleList: React.FC<ModuleListProps> = ({
   items,
-  onReorder,
+
   onEdit,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -61,7 +61,7 @@ export const ModuleList: React.FC<ModuleListProps> = ({
       position: itemsCopy.findIndex((item) => item.id === module.id),
     }));
 
-    onReorder(bulkUpdateData);
+    // onReorder(bulkUpdateData);
   };
 
   if (!isMounted) return null;

@@ -23,7 +23,7 @@ export const sendEmails = async (emailInfo) => {
                 const message = data.message;
 
         const sendInfo = await resend.emails.send({
-            from: "support@serviceinnbd.com",
+            from: "onboarding@resend.dev",
             to: to,
             subject: subject,
             react: EmailTemplate({message}), 

@@ -17,8 +17,7 @@ import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-import { updateCategory } from "@/app/actions/category";
+import { useUpdateCategory } from "@/app/hooks/useCategories";
 
 const formSchema = z.object({
   description: z.string().min(1, {
@@ -34,8 +33,12 @@ interface DescriptionFormProps {
   categoryId: string;
 }
 
-export const DescriptionForm:React.FC<DescriptionFormProps> = ({ initialData, categoryId }) => {
+export const DescriptionForm: React.FC<DescriptionFormProps> = ({
+  initialData,
+  categoryId,
+}) => {
   const router = useRouter();
+  const { mutateAsync } = useUpdateCategory(categoryId);
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -49,9 +52,9 @@ export const DescriptionForm:React.FC<DescriptionFormProps> = ({ initialData, ca
 
   const { isSubmitting, isValid } = form.formState;
 
-  const onSubmit = async (values:FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     try {
-      await updateCategory(categoryId,values)
+     await mutateAsync({data:values})
       toast.success("Category updated");
       toggleEdit();
       router.refresh();

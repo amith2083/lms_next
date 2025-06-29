@@ -1,95 +1,46 @@
 
-import { Course } from "@/model/course";
-import { create } from "@/queries/modules";
-import { IModule, Module } from "@/model/module";
-interface CreateModuleInput {
-  title: string;
-  slug: string;
-  courseId: string;
-  order: number;
-}
-export const createModule = async (data: CreateModuleInput): Promise<IModule> => {
-  try {
-    const { title, slug, courseId, order } = data;
-    // const title = data.get("title") as string;
-    // const slug = data.get("slug") as string;
-    // const courseId = data.get("courseId") as string;
-    // const order = Number(data.get("order"));
+import { IModule } from "@/app/interfaces/IModule";
+import { IModuleRepository } from "@/app/interfaces/IModuleRepository";
+import { IModuleService } from "@/app/interfaces/IModuleService";
+import { DocumentWithId } from "@/lib/convertData";
+import { Module } from "@/model/module";
 
-    const res = (await create({
-      title,
-      slug,
-      course: courseId,
-      order,
-    })) as IModule;
+export class ModuleService implements IModuleService {
+  constructor(private moduleRepository: IModuleRepository) {}
 
-    const course = await Course.findById(courseId);
-    if (!course) throw new Error("Course not found");
-
-    course.modules.push(res._id);
-    await course.save();
-
-    return res;
-  } catch (e) {
-   if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error("Unknown error occurred during lesson creation");
-    }
-  }
-};
-
-export const updateModule = async (
-  moduleId: string,
-  data: Partial<{ title: string; description: string;  }>
-) => {
+  async createModule(data: Partial<IModule>): Promise<DocumentWithId> {
     
-  try {
-    const updatedModule = await Module.findByIdAndUpdate(moduleId, data, {
-      new: true,
+
+    if (typeof data.order === "string") {
+      data.order = parseInt(data.order);
+    }
+    const existing = await Module.findOne({
+      title: { $regex: `^${data.title}$`, $options: "i" },
+      courseId: data.courseId,
     });
-    console.log('update',updateModule)
-    return updatedModule;
-  } catch (error: any) {
-    throw new Error("Failed to update module: " + error.message);
-  }
-};
 
-export const changemodulePublishState = async (
-  moduleId: string
-): Promise<boolean> => {
-  const module = await Module.findById(moduleId);
-  if (!module) throw new Error("module not found");
+    if (existing) {
+      throw new Error("A module with this title already exists in the course.");
+    }
 
-  module.status = !module.status;
-  await module.save();
-  return module.status;
-};
-
-export const deleteModule = async (
-  moduleId: string,
-  courseId: string
-): Promise<void> => {
-  const course = await Course.findById(courseId);
-  if (!course) {
-    throw new Error("Course not found");
+    return this.moduleRepository.createModule(data);
   }
 
-  // Remove module from course
-  course.modules = course.modules.filter((id) => id.toString() !== moduleId);
-
-  // Delete module
-  const deleted = await Module.findByIdAndDelete(moduleId);
-  if (!deleted) {
-    throw new Error("Module not found or failed to delete");
+  async getModule(moduleId: string): Promise<DocumentWithId | null> {
+    const module = await this.moduleRepository.getModule(moduleId);
+    if (!module) throw new Error("Module not found");
+    return module;
   }
 
-  // Save course
-  await course.save();
-};
+  async updateModule(moduleId: string, data: Partial<IModule>): Promise<DocumentWithId | null> {
+    return this.moduleRepository.updateModule(moduleId, data);
+  }
 
+  async changeModulePublishState(moduleId: string): Promise<boolean> {
+    return this.moduleRepository.changeModulePublishState(moduleId);
+  }
 
-// export const deleteModule = async (moduleId: string): Promise<void> => {
-//   const deleted = await Module.findByIdAndDelete(moduleId);
-//   if (!deleted) throw new Error("Module not found or failed to delete");
-// };
+  async deleteModule(moduleId: string, courseId: string): Promise<void> {
+    return this.moduleRepository.deleteModule(moduleId, courseId);
+  }
+}

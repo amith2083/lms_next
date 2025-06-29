@@ -19,9 +19,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ModuleList } from "./module-list-form";
-import {  reOrderModules } from "@/app/actions/module";
+// import {  reOrderModules } from "@/app/actions/module";
 import { getSlug } from "@/lib/convertData";
-import { useCreateMOdule } from "@/app/hooks/useCreateModule";
+import { useCreateModule } from "@/app/hooks/useModule";
+;
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -73,7 +74,7 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
 
   const { isSubmitting, isValid } = form.formState;
 
- const createModule = useCreateMOdule();
+ const createModule = useCreateModule();
    const onSubmit = async (values:FormValues):Promise<void> => {
     try {
 
@@ -108,19 +109,19 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
     }
   };
 
-  const onReorder = async (updateData: any): Promise<void> => {
-    console.log({ updateData });
-    try {
-      reOrderModules(updateData)
-      setIsUpdating(true);
-      toast.success("Chapters reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  // const onReorder = async (updateData: any): Promise<void> => {
+  //   console.log({ updateData });
+  //   try {
+  //     reOrderModules(updateData)
+  //     setIsUpdating(true);
+  //     toast.success("Chapters reordered");
+  //     router.refresh();
+  //   } catch {
+  //     toast.error("Something went wrong");
+  //   } finally {
+  //     setIsUpdating(false);
+  //   }
+  // };
 
   const onEdit = (id: string): void => {
     router.push(`/instructor/courses/${courseId}/modules/${id}`);
@@ -186,7 +187,7 @@ export const ModulesForm: React.FC<ModulesFormProps> = ({
           {!modules?.length && "No module"}
           <ModuleList
             onEdit={onEdit}
-            onReorder={onReorder}
+            // onReorder={onReorder}
             items={modules}
           />
         </div>

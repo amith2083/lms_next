@@ -11,7 +11,8 @@ import * as z from "zod";
 import { UploadDropzone } from "@/components/file-upload";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useUpdateCourseImage } from "@/app/hooks/useUpdateCourseImage";
+import { useUpdateCourseImage } from "@/app/hooks/useCourse";
+
 
 const formSchema = z.object({
   imageUrl: z.string().min(1, {

@@ -12,10 +12,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
 
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const router = useRouter()
 
   useEffect(() => {  
       async function fetchMe() {
@@ -30,7 +32,15 @@ export const Navbar = () => {
       }
       fetchMe();
   },[]);
-
+ const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      await signOut({ redirect: false }); // Prevent default redirect
+      router.push("/login"); // Manual redirect
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
 
   return (
@@ -52,7 +62,7 @@ export const Navbar = () => {
           <DropdownMenuContent align="end" className="w-56 mt-4">
              
             <DropdownMenuItem className="cursor-pointer">
-              <Link href="#" onClick={() => {signOut()}} >Logout</Link>
+              <Link href="#" onClick={handleLogout} >Logout</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

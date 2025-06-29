@@ -17,7 +17,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
-import { updateCategory } from "@/app/actions/category";
+import { useUpdateCategory } from "@/app/hooks/useCategories";
+
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -40,6 +41,8 @@ export const TitleForm: React.FC<TitleFormProps> = ({
 }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  
+    const { mutateAsync } = useUpdateCategory(categoryId);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
@@ -52,9 +55,10 @@ export const TitleForm: React.FC<TitleFormProps> = ({
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     try {
-      await updateCategory(categoryId, values);
+      // await updateCategory(categoryId, values);
+   await mutateAsync({ data: values });
       toggleEdit();
-      router.refresh();
+      // router.refresh();
       toast.success("Category has been updated");
     } catch (error) {
       toast.error("Something went wrong");

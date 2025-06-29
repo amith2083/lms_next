@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
     otp: Number(form.otp) // Convert OTP to number
   }
 
-    const res = await fetch('/api/reset-password', {
+    const res = await fetch('/api/users/reset-password', {
       method: 'POST',
       body: JSON.stringify(formData),
       headers: { 'Content-Type': 'application/json' }
